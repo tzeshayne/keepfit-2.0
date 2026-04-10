@@ -1,0 +1,3715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kids Learning Adventure</title>
+    <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Fredoka:wght@500;600;700&family=DynaPuff:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #fdf6e3;
+            --wood-bg: #d4a373;
+            --wood-border: #8b5a2b;
+            --wood-shadow: #73451e;
+            --btn-blue: #6ec1e4;
+            --btn-yellow: #ffda59;
+            --btn-green: #b3e55e;
+            --btn-pink: #ff9eb3;
+            --btn-blue-dark: #4da8cf;
+            --btn-yellow-dark: #e5b92b;
+            --btn-green-dark: #91c83c;
+            --btn-pink-dark: #e5738f;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: 'Fredoka', sans-serif;
+            background: #f5e6c8;
+            overflow: hidden;
+            color: #333;
+        }
+
+        /* Start Screen */
+        #startScreen {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            background: url('classroom_bg_1775643668453.jpg') center/cover no-repeat;
+        }
+
+        .wood-board {
+            background: rgba(212, 163, 115, 0.92);
+            border: 6px solid var(--wood-border);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 0 var(--wood-shadow), inset 0 0 20px rgba(139, 90, 43, 0.4), 0 20px 60px rgba(0,0,0,0.4);
+            max-width: 800px;
+            width: 90%;
+            backdrop-filter: blur(2px);
+        }
+
+        .title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 72px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin: 0 0 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            line-height: 1;
+        }
+
+        .title-line {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .title span {
+            display: inline-block;
+            text-shadow: 
+                3px 3px 0 #000,
+                -3px -3px 0 #000,
+                3px -3px 0 #000,
+                -3px 3px 0 #000,
+                3px 0 0 #000,
+                -3px 0 0 #000,
+                0 3px 0 #000,
+                0 -3px 0 #000,
+                0 8px 15px rgba(0,0,0,0.3);
+            transform: rotate(var(--rotate, 0deg));
+            animation: bounceLetter 0.6s infinite alternate cubic-bezier(0.455, 0.03, 0.515, 0.955);
+        }
+
+        @keyframes bounceLetter {
+            from { transform: translateY(0) rotate(var(--rotate, 0deg)); }
+            to { transform: translateY(-10px) rotate(var(--rotate, 0deg)); }
+        }
+
+        .section-title {
+            font-size: 24px;
+            color: #4a3424;
+            margin: 20px 0 10px;
+            font-weight: 600;
+            background: rgba(255,255,255,0.4);
+            display: inline-block;
+            padding: 5px 20px;
+            border-radius: 20px;
+            border: 2px dashed #8b5a2b;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .round-btn {
+            border: none;
+            border-radius: 30px;
+            padding: 15px 30px;
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .round-btn:active {
+            transform: translateY(6px);
+        }
+
+        .btn-blue { background: var(--btn-blue); box-shadow: 0 8px 0 var(--btn-blue-dark); border: 3px solid white; }
+        .btn-blue:active { box-shadow: 0 2px 0 var(--btn-blue-dark); margin-top: 6px; margin-bottom: -6px; }
+        
+        .btn-yellow { background: var(--btn-yellow); box-shadow: 0 8px 0 var(--btn-yellow-dark); border: 3px solid white; color: #5c3a21; text-shadow: none; }
+        .btn-yellow:active { box-shadow: 0 2px 0 var(--btn-yellow-dark); margin-top: 6px; margin-bottom: -6px; }
+
+        .btn-green { background: var(--btn-green); box-shadow: 0 8px 0 var(--btn-green-dark); border: 3px solid white; }
+        .btn-green:active { box-shadow: 0 2px 0 var(--btn-green-dark); margin-top: 6px; margin-bottom: -6px; }
+
+        .btn-pink { background: var(--btn-pink); box-shadow: 0 8px 0 var(--btn-pink-dark); border: 3px solid white; }
+        .btn-pink:active { box-shadow: 0 2px 0 var(--btn-pink-dark); margin-top: 6px; margin-bottom: -6px; }
+
+        .round-btn.selected {
+            transform: scale(1.15);
+            box-shadow: 0 0 0 6px white, 0 10px 20px rgba(0,0,0,0.3) !important;
+            z-index: 2;
+        }
+
+
+
+        #startBtn {
+            font-size: 28px;
+            padding: 15px 40px;
+            background: #fff;
+            color: var(--wood-shadow);
+            border: 4px solid var(--wood-shadow);
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 6px 0 var(--wood-shadow);
+            margin-top: 20px;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        #startBtn:hover {
+            background: #f0f0f0;
+            transform: translateY(2px);
+            box-shadow: 0 4px 0 var(--wood-shadow);
+        }
+
+        #startBtn:active {
+            transform: translateY(6px);
+            box-shadow: 0 0px 0 var(--wood-shadow);
+        }
+
+        /* Game Screen */
+        #gameScreen {
+            position: absolute;
+            inset: 0;
+            display: none;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--wood-bg);
+            border-bottom: 6px solid var(--wood-border);
+            color: white;
+            z-index: 10;
+        }
+
+        .stat-badge {
+            background: rgba(0,0,0,0.2);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 24px;
+            border: 2px solid rgba(255,255,255,0.5);
+            font-weight: 700;
+        }
+
+        .question-box {
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border: 5px solid var(--btn-blue);
+            border-radius: 30px;
+            padding: 20px 40px;
+            font-size: 32px;
+            font-weight: 700;
+            color: #333;
+            box-shadow: 0 10px 0 var(--btn-blue-dark), 0 15px 30px rgba(0,0,0,0.2);
+            z-index: 20;
+            text-align: center;
+            max-width: 80%;
+            animation: slideDown 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes slideDown {
+            from { transform: translate(-50%, -100px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+
+        #cameraContainer {
+            flex-grow: 1;
+            position: relative;
+            background: #000;
+            overflow: hidden;
+        }
+
+        video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+        
+        canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 60px;
+            font-weight: bold;
+            z-index: 50;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        .indicator.right {
+            color: #b3e55e;
+            animation: popOut 1s forwards;
+            text-shadow: 2px 2px 0 #333, -2px -2px 0 #333, 2px -2px 0 #333, -2px 2px 0 #333, 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        .indicator.wrong {
+            color: #ff9eb3;
+            animation: popOut 1s forwards;
+            text-shadow: 2px 2px 0 #333, -2px -2px 0 #333, 2px -2px 0 #333, -2px 2px 0 #333, 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        @keyframes popOut {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="startScreen">
+        <div class="wood-board">
+            <h1 class="title" id="mainTitle">
+                <!-- Spans will be injected here for clean coloring -->
+                Kids Learning Adventure
+            </h1>
+            
+            <div class="section-title">1. Choose Topic</div>
+            <div class="btn-row">
+                <button class="round-btn btn-blue selected" id="topicMath" onclick="selectTopic('math')">🔢 Math</button>
+                <button class="round-btn btn-pink" id="topicAnimal" onclick="selectTopic('animals')">🦁 Animal Fun Facts</button>
+                <button class="round-btn btn-yellow" id="topicMotherTongue" onclick="selectTopic('motherTongue')">🗣️ Bilingual</button>
+            </div>
+
+            <div id="languageSection" style="display: none; width: 100%;">
+                <div class="section-title" style="margin-top: 5px;">Select Language</div>
+                <div class="btn-row">
+                    <button class="round-btn btn-pink selected" id="langChinese" onclick="selectLang('chinese')">Chinese</button>
+                    <button class="round-btn btn-green" id="langMalay" onclick="selectLang('malay')">Malay</button>
+                    <button class="round-btn btn-yellow" id="langTamil" onclick="selectLang('tamil')">Tamil</button>
+                    <button class="round-btn btn-blue" id="langHindi" onclick="selectLang('hindi')">Hindi</button>
+                </div>
+            </div>
+
+            <div class="section-title">2. Choose Difficulty</div>
+            <div class="btn-row">
+                <button class="round-btn btn-green selected" id="diffEasy" onclick="selectDiff('easy')">🐢 Easy</button>
+                <button class="round-btn btn-yellow" id="diffMedium" onclick="selectDiff('medium')">🐰 Medium</button>
+                <button class="round-btn btn-pink" id="diffHard" onclick="selectDiff('hard')">🚀 Hard</button>
+            </div>
+
+            <button id="startBtn" onclick="startGame()">▶️ Play Now!</button>
+        </div>
+    </div>
+
+    <div id="gameScreen">
+        <div class="header">
+            <div class="stat-badge">⭐ Score: <span id="score">0</span></div>
+            <div class="stat-badge">⏱️ <span id="time">60</span>s</div>
+        </div>
+        <div id="cameraContainer">
+            <video id="video" playsinline muted></video>
+            <canvas id="overlay"></canvas>
+            <div id="questionBox" class="question-box">Loading...</div>
+            <div id="indicator" class="indicator"></div>
+        </div>
+    </div>
+
+    <div id="endScreen" style="display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; flex-direction: column; align-items: center; justify-content: center;">
+        <div class="wood-board">
+            <h1 class="title" style="font-size: 60px;">Time's Up!</h1>
+            <h2 style="color: white; font-size: 40px; margin: 20px 0;">Final Score: <span id="finalScore" style="color: var(--btn-yellow);">0</span></h2>
+            <button class="round-btn btn-blue" onclick="location.reload()" style="font-size: 28px; padding: 15px 40px; margin-top: 20px;">Play Again 🔄</button>
+        </div>
+    </div>
+
+    <!-- MediaPipe Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+
+    <script>
+        // Color a title with individual pastel colors
+        function colorTitle() {
+            const titleEl = document.getElementById('mainTitle');
+            const lines = ["Kids Learning", "Adventure"];
+            const colors = ['#FFB3BA', '#FFDFBA', '#FFFFBA', '#BAFFC9', '#BAE1FF', '#DCD3FF', '#FFFFFF'];
+            titleEl.innerHTML = '';
+            
+            let colorIndex = 0;
+            lines.forEach((lineText, lineIdx) => {
+                const lineDiv = document.createElement('div');
+                lineDiv.className = 'title-line';
+                
+                lineText.split('').forEach((char) => {
+                    const span = document.createElement('span');
+                    span.textContent = char === ' ' ? '\u00A0' : char;
+                    if (char !== ' ') {
+                        span.style.color = colors[colorIndex % colors.length];
+                        span.style.setProperty('--rotate', (Math.random() * 12 - 6) + 'deg');
+                        span.style.animationDelay = (colorIndex * 0.08) + 's';
+                        colorIndex++;
+                    }
+                    lineDiv.appendChild(span);
+                });
+                titleEl.appendChild(lineDiv);
+            });
+        }
+        colorTitle();
+
+        const qsData = {
+            math: {
+    "easy": [
+        {
+            "q": "5 + 3 = ?",
+            "a": "8",
+            "w": [
+                "6",
+                "7",
+                "18"
+            ]
+        },
+        {
+            "q": "10 - 4",
+            "a": "6",
+            "w": [
+                "5",
+                "7",
+                "4"
+            ]
+        },
+        {
+            "q": "What number comes after 19?",
+            "a": "20",
+            "w": [
+                "21",
+                "30",
+                "19"
+            ]
+        },
+        {
+            "q": "7 + 2 = ?",
+            "a": "9",
+            "w": [
+                "8",
+                "19",
+                "10"
+            ]
+        },
+        {
+            "q": "15 - 5",
+            "a": "10",
+            "w": [
+                "9",
+                "12",
+                "8"
+            ]
+        },
+        {
+            "q": "How many sides does a triangle have?",
+            "a": "3",
+            "w": [
+                "4",
+                "13",
+                "5"
+            ]
+        },
+        {
+            "q": "3 + 6 = ?",
+            "a": "9",
+            "w": [
+                "11",
+                "7",
+                "8"
+            ]
+        },
+        {
+            "q": "What is 1 more than 20?",
+            "a": "21",
+            "w": [
+                "20",
+                "19",
+                "31"
+            ]
+        },
+        {
+            "q": "9 - 2",
+            "a": "7",
+            "w": [
+                "17",
+                "5",
+                "8"
+            ]
+        },
+        {
+            "q": "2 + 3 = ?",
+            "a": "5",
+            "w": [
+                "3",
+                "7",
+                "6"
+            ]
+        },
+        {
+            "q": "6 + 6 = ?",
+            "a": "12",
+            "w": [
+                "10",
+                "14",
+                "11"
+            ]
+        },
+        {
+            "q": "8 - 4",
+            "a": "4",
+            "w": [
+                "2",
+                "5",
+                "14"
+            ]
+        },
+        {
+            "q": "5 + 6 = ?",
+            "a": "11",
+            "w": [
+                "9",
+                "13",
+                "10"
+            ]
+        },
+        {
+            "q": "7 + 6 = ?",
+            "a": "13",
+            "w": [
+                "14",
+                "11",
+                "15"
+            ]
+        },
+        {
+            "q": "4 - 2",
+            "a": "2",
+            "w": [
+                "3",
+                "12",
+                "1"
+            ]
+        },
+        {
+            "q": "5 + 5 = ?",
+            "a": "10",
+            "w": [
+                "12",
+                "9",
+                "11"
+            ]
+        },
+        {
+            "q": "8 + 6 = ?",
+            "a": "14",
+            "w": [
+                "16",
+                "13",
+                "4"
+            ]
+        },
+        {
+            "q": "9 - 3",
+            "a": "6",
+            "w": [
+                "8",
+                "16",
+                "4"
+            ]
+        },
+        {
+            "q": "4 + 4 = ?",
+            "a": "8",
+            "w": [
+                "18",
+                "9",
+                "7"
+            ]
+        },
+        {
+            "q": "6 + 3 = ?",
+            "a": "9",
+            "w": [
+                "19",
+                "11",
+                "8"
+            ]
+        },
+        {
+            "q": "9 + 6 = ?",
+            "a": "15",
+            "w": [
+                "25",
+                "5",
+                "13"
+            ]
+        },
+        {
+            "q": "5 - 2",
+            "a": "3",
+            "w": [
+                "2",
+                "13",
+                "5"
+            ]
+        },
+        {
+            "q": "9 + 9 = ?",
+            "a": "18",
+            "w": [
+                "20",
+                "8",
+                "19"
+            ]
+        },
+        {
+            "q": "3 + 4 = ?",
+            "a": "7",
+            "w": [
+                "9",
+                "6",
+                "5"
+            ]
+        },
+        {
+            "q": "8 + 8 = ?",
+            "a": "16",
+            "w": [
+                "18",
+                "6",
+                "17"
+            ]
+        },
+        {
+            "q": "2 + 2 = ?",
+            "a": "4",
+            "w": [
+                "5",
+                "2",
+                "3"
+            ]
+        },
+        {
+            "q": "6 + 5 = ?",
+            "a": "11",
+            "w": [
+                "12",
+                "10",
+                "1"
+            ]
+        },
+        {
+            "q": "5 + 5 = ?",
+            "a": "10",
+            "w": [
+                "12",
+                "8",
+                "20"
+            ]
+        },
+        {
+            "q": "7 + 6 = ?",
+            "a": "13",
+            "w": [
+                "14",
+                "12",
+                "23"
+            ]
+        },
+        {
+            "q": "3 + 3 = ?",
+            "a": "6",
+            "w": [
+                "5",
+                "4",
+                "16"
+            ]
+        },
+        {
+            "q": "7 + 5 = ?",
+            "a": "12",
+            "w": [
+                "22",
+                "14",
+                "10"
+            ]
+        },
+        {
+            "q": "7 - 2",
+            "a": "5",
+            "w": [
+                "6",
+                "3",
+                "15"
+            ]
+        },
+        {
+            "q": "9 + 8 = ?",
+            "a": "17",
+            "w": [
+                "16",
+                "15",
+                "7"
+            ]
+        },
+        {
+            "q": "4 + 4 = ?",
+            "a": "8",
+            "w": [
+                "6",
+                "9",
+                "7"
+            ]
+        },
+        {
+            "q": "8 + 6 = ?",
+            "a": "14",
+            "w": [
+                "4",
+                "16",
+                "13"
+            ]
+        },
+        {
+            "q": "1 more than 8",
+            "a": "9",
+            "w": [
+                "8",
+                "7",
+                "19"
+            ]
+        },
+        {
+            "q": "1 more than 18",
+            "a": "19",
+            "w": [
+                "20",
+                "18",
+                "17"
+            ]
+        },
+        {
+            "q": "3 - 1",
+            "a": "2",
+            "w": [
+                "4",
+                "12",
+                "1"
+            ]
+        },
+        {
+            "q": "19 + 1 = ?",
+            "a": "20",
+            "w": [
+                "10",
+                "30",
+                "21"
+            ]
+        },
+        {
+            "q": "What comes after 6?",
+            "a": "7",
+            "w": [
+                "9",
+                "6",
+                "8"
+            ]
+        },
+        {
+            "q": "What comes before 7?",
+            "a": "6",
+            "w": [
+                "7",
+                "8",
+                "5"
+            ]
+        },
+        {
+            "q": "6 + 5 = ?",
+            "a": "11",
+            "w": [
+                "13",
+                "9",
+                "12"
+            ]
+        },
+        {
+            "q": "7 + 8 = ?",
+            "a": "15",
+            "w": [
+                "25",
+                "17",
+                "13"
+            ]
+        },
+        {
+            "q": "4 + 4 = ?",
+            "a": "8",
+            "w": [
+                "6",
+                "18",
+                "10"
+            ]
+        },
+        {
+            "q": "6 + 7 = ?",
+            "a": "13",
+            "w": [
+                "14",
+                "11",
+                "23"
+            ]
+        },
+        {
+            "q": "2 + 2 = ?",
+            "a": "4",
+            "w": [
+                "3",
+                "5",
+                "6"
+            ]
+        },
+        {
+            "q": "3 + 6 = ?",
+            "a": "9",
+            "w": [
+                "19",
+                "7",
+                "10"
+            ]
+        },
+        {
+            "q": "6 + 6 = ?",
+            "a": "12",
+            "w": [
+                "10",
+                "13",
+                "14"
+            ]
+        },
+        {
+            "q": "5 + 5 = ?",
+            "a": "10",
+            "w": [
+                "11",
+                "20",
+                "8"
+            ]
+        },
+        {
+            "q": "6 - 1",
+            "a": "5",
+            "w": [
+                "7",
+                "3",
+                "15"
+            ]
+        },
+        {
+            "q": "8 + 8 = ?",
+            "a": "16",
+            "w": [
+                "17",
+                "26",
+                "14"
+            ]
+        },
+        {
+            "q": "2 + 1 = ?",
+            "a": "3",
+            "w": [
+                "2",
+                "1",
+                "4"
+            ]
+        },
+        {
+            "q": "9 + 9 = ?",
+            "a": "18",
+            "w": [
+                "28",
+                "20",
+                "8"
+            ]
+        },
+        {
+            "q": "4 + 2 = ?",
+            "a": "6",
+            "w": [
+                "7",
+                "16",
+                "5"
+            ]
+        },
+        {
+            "q": "6 + 1 = ?",
+            "a": "7",
+            "w": [
+                "17",
+                "9",
+                "8"
+            ]
+        },
+        {
+            "q": "8 + 6 = ?",
+            "a": "14",
+            "w": [
+                "12",
+                "15",
+                "13"
+            ]
+        },
+        {
+            "q": "4 - 2",
+            "a": "2",
+            "w": [
+                "1",
+                "4",
+                "3"
+            ]
+        },
+        {
+            "q": "5 + 6 = ?",
+            "a": "11",
+            "w": [
+                "1",
+                "13",
+                "21"
+            ]
+        },
+        {
+            "q": "9 + 10 = ?",
+            "a": "19",
+            "w": [
+                "17",
+                "20",
+                "29"
+            ]
+        },
+        {
+            "q": "What is between 7 and 9?",
+            "a": "8",
+            "w": [
+                "7",
+                "9",
+                "10"
+            ]
+        },
+        {
+            "q": "What is between 9 and 11?",
+            "a": "10",
+            "w": [
+                "20",
+                "8",
+                "12"
+            ]
+        },
+        {
+            "q": "2 + 2 = ?",
+            "a": "4",
+            "w": [
+                "2",
+                "6",
+                "5"
+            ]
+        },
+        {
+            "q": "6 + 7 = ?",
+            "a": "13",
+            "w": [
+                "14",
+                "15",
+                "3"
+            ]
+        },
+        {
+            "q": "4 + 5 = ?",
+            "a": "9",
+            "w": [
+                "8",
+                "19",
+                "10"
+            ]
+        },
+        {
+            "q": "6 + 6 = ?",
+            "a": "12",
+            "w": [
+                "13",
+                "14",
+                "2"
+            ]
+        },
+        {
+            "q": "7 - 2",
+            "a": "5",
+            "w": [
+                "7",
+                "3",
+                "6"
+            ]
+        },
+        {
+            "q": "9 + 8 = ?",
+            "a": "17",
+            "w": [
+                "15",
+                "16",
+                "7"
+            ]
+        },
+        {
+            "q": "3 + 3 = ?",
+            "a": "6",
+            "w": [
+                "8",
+                "4",
+                "16"
+            ]
+        },
+        {
+            "q": "10 + 10 = ?",
+            "a": "20",
+            "w": [
+                "30",
+                "18",
+                "21"
+            ]
+        },
+        {
+            "q": "Triangle sides",
+            "a": "3",
+            "w": [
+                "1",
+                "5",
+                "2"
+            ]
+        },
+        {
+            "q": "Days in a week",
+            "a": "7",
+            "w": [
+                "8",
+                "6",
+                "5"
+            ]
+        },
+        {
+            "q": "3 + 4 = ?",
+            "a": "7",
+            "w": [
+                "6",
+                "17",
+                "9"
+            ]
+        },
+        {
+            "q": "4 + 4 = ?",
+            "a": "8",
+            "w": [
+                "18",
+                "7",
+                "9"
+            ]
+        },
+        {
+            "q": "5 + 6 = ?",
+            "a": "11",
+            "w": [
+                "9",
+                "1",
+                "21"
+            ]
+        },
+        {
+            "q": "6 + 8 = ?",
+            "a": "14",
+            "w": [
+                "15",
+                "4",
+                "24"
+            ]
+        },
+        {
+            "q": "10 - 8",
+            "a": "2",
+            "w": [
+                "3",
+                "4",
+                "12"
+            ]
+        },
+        {
+            "q": "9 + 9 = ?",
+            "a": "18",
+            "w": [
+                "28",
+                "19",
+                "17"
+            ]
+        },
+        {
+            "q": "6 + 3 = ?",
+            "a": "9",
+            "w": [
+                "8",
+                "10",
+                "7"
+            ]
+        },
+        {
+            "q": "8 - 2",
+            "a": "6",
+            "w": [
+                "4",
+                "7",
+                "8"
+            ]
+        },
+        {
+            "q": "9 + 4 = ?",
+            "a": "13",
+            "w": [
+                "23",
+                "15",
+                "11"
+            ]
+        },
+        {
+            "q": "3 + 1 = ?",
+            "a": "4",
+            "w": [
+                "14",
+                "3",
+                "5"
+            ]
+        },
+        {
+            "q": "5 + 5 = ?",
+            "a": "10",
+            "w": [
+                "11",
+                "20",
+                "9"
+            ]
+        },
+        {
+            "q": "6 + 6 = ?",
+            "a": "12",
+            "w": [
+                "2",
+                "22",
+                "11"
+            ]
+        },
+        {
+            "q": "7 - 2",
+            "a": "5",
+            "w": [
+                "3",
+                "4",
+                "7"
+            ]
+        },
+        {
+            "q": "8 + 8 = ?",
+            "a": "16",
+            "w": [
+                "26",
+                "18",
+                "14"
+            ]
+        },
+        {
+            "q": "4 + 3 = ?",
+            "a": "7",
+            "w": [
+                "5",
+                "8",
+                "9"
+            ]
+        },
+        {
+            "q": "9 + 10 = ?",
+            "a": "19",
+            "w": [
+                "9",
+                "17",
+                "20"
+            ]
+        },
+        {
+            "q": "What comes after 2?",
+            "a": "3",
+            "w": [
+                "5",
+                "1",
+                "2"
+            ]
+        },
+        {
+            "q": "What comes before 9?",
+            "a": "8",
+            "w": [
+                "18",
+                "7",
+                "9"
+            ]
+        },
+        {
+            "q": "5 + 6 = ?",
+            "a": "11",
+            "w": [
+                "1",
+                "10",
+                "13"
+            ]
+        },
+        {
+            "q": "7 + 7 = ?",
+            "a": "14",
+            "w": [
+                "4",
+                "13",
+                "16"
+            ]
+        },
+        {
+            "q": "3 + 3 = ?",
+            "a": "6",
+            "w": [
+                "5",
+                "7",
+                "16"
+            ]
+        },
+        {
+            "q": "4 - 2",
+            "a": "2",
+            "w": [
+                "4",
+                "1",
+                "3"
+            ]
+        },
+        {
+            "q": "6 + 7 = ?",
+            "a": "13",
+            "w": [
+                "3",
+                "14",
+                "11"
+            ]
+        },
+        {
+            "q": "5 + 4 = ?",
+            "a": "9",
+            "w": [
+                "11",
+                "8",
+                "10"
+            ]
+        },
+        {
+            "q": "2 + 3 = ?",
+            "a": "5",
+            "w": [
+                "6",
+                "3",
+                "4"
+            ]
+        },
+        {
+            "q": "9 + 9 = ?",
+            "a": "18",
+            "w": [
+                "16",
+                "8",
+                "17"
+            ]
+        },
+        {
+            "q": "2 + 2 = ?",
+            "a": "4",
+            "w": [
+                "6",
+                "3",
+                "5"
+            ]
+        },
+        {
+            "q": "3 + 4 = ?",
+            "a": "7",
+            "w": [
+                "8",
+                "17",
+                "9"
+            ]
+        },
+        {
+            "q": "5 + 5 = ?",
+            "a": "10",
+            "w": [
+                "11",
+                "20",
+                "8"
+            ]
+        }
+    ],
+    "medium": [
+        {
+            "q": "12 + 8 = ?",
+            "a": "20",
+            "w": [
+                "10",
+                "18",
+                "21"
+            ]
+        },
+        {
+            "q": "20 - 9",
+            "a": "11",
+            "w": [
+                "9",
+                "21",
+                "13"
+            ]
+        },
+        {
+            "q": "5 × 2 = ?",
+            "a": "10",
+            "w": [
+                "12",
+                "8",
+                "20"
+            ]
+        },
+        {
+            "q": "30 ÷ 5 = ?",
+            "a": "6",
+            "w": [
+                "4",
+                "8",
+                "7"
+            ]
+        },
+        {
+            "q": "10 more than 34",
+            "a": "44",
+            "w": [
+                "43",
+                "45",
+                "34"
+            ]
+        },
+        {
+            "q": "14 + 7 = ?",
+            "a": "21",
+            "w": [
+                "22",
+                "19",
+                "31"
+            ]
+        },
+        {
+            "q": "9 × 3 = ?",
+            "a": "27",
+            "w": [
+                "28",
+                "25",
+                "37"
+            ]
+        },
+        {
+            "q": "3 + 4 = ?",
+            "a": "7",
+            "w": [
+                "8",
+                "5",
+                "6"
+            ]
+        },
+        {
+            "q": "25 - 7",
+            "a": "18",
+            "w": [
+                "8",
+                "16",
+                "19"
+            ]
+        },
+        {
+            "q": "6 × 2 = ?",
+            "a": "12",
+            "w": [
+                "22",
+                "10",
+                "14"
+            ]
+        },
+        {
+            "q": "9 × 4 = ?",
+            "a": "36",
+            "w": [
+                "38",
+                "46",
+                "26"
+            ]
+        },
+        {
+            "q": "40 ÷ 8 = ?",
+            "a": "5",
+            "w": [
+                "15",
+                "4",
+                "3"
+            ]
+        },
+        {
+            "q": "45 + 5 = ?",
+            "a": "50",
+            "w": [
+                "40",
+                "48",
+                "51"
+            ]
+        },
+        {
+            "q": "30 - 11",
+            "a": "19",
+            "w": [
+                "9",
+                "21",
+                "17"
+            ]
+        },
+        {
+            "q": "8 × 2 = ?",
+            "a": "16",
+            "w": [
+                "14",
+                "6",
+                "15"
+            ]
+        },
+        {
+            "q": "16 ÷ 2 = ?",
+            "a": "8",
+            "w": [
+                "9",
+                "10",
+                "6"
+            ]
+        },
+        {
+            "q": "6 × 4 = ?",
+            "a": "24",
+            "w": [
+                "25",
+                "14",
+                "26"
+            ]
+        },
+        {
+            "q": "60 ÷ 2 = ?",
+            "a": "30",
+            "w": [
+                "40",
+                "29",
+                "31"
+            ]
+        },
+        {
+            "q": "22 - 9",
+            "a": "13",
+            "w": [
+                "14",
+                "15",
+                "12"
+            ]
+        },
+        {
+            "q": "40 + 5 = ?",
+            "a": "45",
+            "w": [
+                "55",
+                "44",
+                "46"
+            ]
+        },
+        {
+            "q": "14 × 2 = ?",
+            "a": "28",
+            "w": [
+                "27",
+                "30",
+                "18"
+            ]
+        },
+        {
+            "q": "28 ÷ 2 = ?",
+            "a": "14",
+            "w": [
+                "4",
+                "16",
+                "24"
+            ]
+        },
+        {
+            "q": "3 × 3 = ?",
+            "a": "9",
+            "w": [
+                "8",
+                "11",
+                "7"
+            ]
+        },
+        {
+            "q": "50 + 10 = ?",
+            "a": "60",
+            "w": [
+                "61",
+                "58",
+                "59"
+            ]
+        },
+        {
+            "q": "25 - 8",
+            "a": "17",
+            "w": [
+                "19",
+                "15",
+                "16"
+            ]
+        },
+        {
+            "q": "16 × 2 = ?",
+            "a": "32",
+            "w": [
+                "22",
+                "42",
+                "33"
+            ]
+        },
+        {
+            "q": "18 ÷ 3 = ?",
+            "a": "6",
+            "w": [
+                "4",
+                "7",
+                "16"
+            ]
+        },
+        {
+            "q": "20 + 5 = ?",
+            "a": "25",
+            "w": [
+                "15",
+                "26",
+                "24"
+            ]
+        },
+        {
+            "q": "7 × 3 = ?",
+            "a": "21",
+            "w": [
+                "31",
+                "22",
+                "23"
+            ]
+        },
+        {
+            "q": "45 ÷ 3 = ?",
+            "a": "15",
+            "w": [
+                "14",
+                "13",
+                "25"
+            ]
+        },
+        {
+            "q": "6 × 8 = ?",
+            "a": "48",
+            "w": [
+                "58",
+                "49",
+                "50"
+            ]
+        },
+        {
+            "q": "24 ÷ 2 = ?",
+            "a": "12",
+            "w": [
+                "14",
+                "13",
+                "11"
+            ]
+        },
+        {
+            "q": "9 × 2 = ?",
+            "a": "18",
+            "w": [
+                "16",
+                "28",
+                "20"
+            ]
+        },
+        {
+            "q": "20 + 20 = ?",
+            "a": "40",
+            "w": [
+                "38",
+                "30",
+                "39"
+            ]
+        },
+        {
+            "q": "30 - 8",
+            "a": "22",
+            "w": [
+                "32",
+                "21",
+                "23"
+            ]
+        },
+        {
+            "q": "21 ÷ 3 = ?",
+            "a": "7",
+            "w": [
+                "9",
+                "5",
+                "8"
+            ]
+        },
+        {
+            "q": "5 × 7 = ?",
+            "a": "35",
+            "w": [
+                "33",
+                "34",
+                "45"
+            ]
+        },
+        {
+            "q": "13 + 13 = ?",
+            "a": "26",
+            "w": [
+                "28",
+                "16",
+                "36"
+            ]
+        },
+        {
+            "q": "8 × 2 = ?",
+            "a": "16",
+            "w": [
+                "15",
+                "14",
+                "6"
+            ]
+        },
+        {
+            "q": "36 ÷ 4 = ?",
+            "a": "9",
+            "w": [
+                "10",
+                "19",
+                "11"
+            ]
+        },
+        {
+            "q": "15 + 5 = ?",
+            "a": "20",
+            "w": [
+                "19",
+                "21",
+                "10"
+            ]
+        },
+        {
+            "q": "18 - 7",
+            "a": "11",
+            "w": [
+                "21",
+                "13",
+                "12"
+            ]
+        },
+        {
+            "q": "6 × 4 = ?",
+            "a": "24",
+            "w": [
+                "14",
+                "25",
+                "34"
+            ]
+        },
+        {
+            "q": "16 ÷ 2 = ?",
+            "a": "8",
+            "w": [
+                "7",
+                "10",
+                "18"
+            ]
+        },
+        {
+            "q": "5 × 6 = ?",
+            "a": "30",
+            "w": [
+                "31",
+                "29",
+                "20"
+            ]
+        },
+        {
+            "q": "20 - 7",
+            "a": "13",
+            "w": [
+                "15",
+                "14",
+                "11"
+            ]
+        },
+        {
+            "q": "9 × 3 = ?",
+            "a": "27",
+            "w": [
+                "28",
+                "29",
+                "25"
+            ]
+        },
+        {
+            "q": "25 ÷ 5 = ?",
+            "a": "5",
+            "w": [
+                "3",
+                "6",
+                "7"
+            ]
+        },
+        {
+            "q": "6 × 6 = ?",
+            "a": "36",
+            "w": [
+                "38",
+                "35",
+                "46"
+            ]
+        },
+        {
+            "q": "7 + 7 = ?",
+            "a": "14",
+            "w": [
+                "13",
+                "24",
+                "12"
+            ]
+        },
+        {
+            "q": "11 + 8 = ?",
+            "a": "19",
+            "w": [
+                "29",
+                "17",
+                "21"
+            ]
+        },
+        {
+            "q": "5 × 2 = ?",
+            "a": "10",
+            "w": [
+                "8",
+                "12",
+                "11"
+            ]
+        },
+        {
+            "q": "6 × 7 = ?",
+            "a": "42",
+            "w": [
+                "44",
+                "41",
+                "40"
+            ]
+        },
+        {
+            "q": "12 ÷ 2 = ?",
+            "a": "6",
+            "w": [
+                "4",
+                "7",
+                "16"
+            ]
+        },
+        {
+            "q": "20 + 5 = ?",
+            "a": "25",
+            "w": [
+                "26",
+                "27",
+                "15"
+            ]
+        },
+        {
+            "q": "15 + 16 = ?",
+            "a": "31",
+            "w": [
+                "29",
+                "32",
+                "33"
+            ]
+        },
+        {
+            "q": "24 ÷ 2 = ?",
+            "a": "12",
+            "w": [
+                "2",
+                "10",
+                "14"
+            ]
+        },
+        {
+            "q": "4 × 2 = ?",
+            "a": "8",
+            "w": [
+                "9",
+                "18",
+                "6"
+            ]
+        },
+        {
+            "q": "9 × 5 = ?",
+            "a": "45",
+            "w": [
+                "43",
+                "35",
+                "55"
+            ]
+        },
+        {
+            "q": "8 + 8 = ?",
+            "a": "16",
+            "w": [
+                "26",
+                "18",
+                "15"
+            ]
+        },
+        {
+            "q": "10 + 10 = ?",
+            "a": "20",
+            "w": [
+                "10",
+                "21",
+                "22"
+            ]
+        },
+        {
+            "q": "3 × 3 = ?",
+            "a": "9",
+            "w": [
+                "19",
+                "8",
+                "10"
+            ]
+        },
+        {
+            "q": "4 × 7 = ?",
+            "a": "28",
+            "w": [
+                "38",
+                "27",
+                "26"
+            ]
+        },
+        {
+            "q": "21 ÷ 3 = ?",
+            "a": "7",
+            "w": [
+                "8",
+                "9",
+                "5"
+            ]
+        },
+        {
+            "q": "16 × 2 = ?",
+            "a": "32",
+            "w": [
+                "22",
+                "33",
+                "31"
+            ]
+        },
+        {
+            "q": "5 + 6 = ?",
+            "a": "11",
+            "w": [
+                "21",
+                "12",
+                "13"
+            ]
+        },
+        {
+            "q": "6 × 4 = ?",
+            "a": "24",
+            "w": [
+                "22",
+                "26",
+                "25"
+            ]
+        },
+        {
+            "q": "18 ÷ 3 = ?",
+            "a": "6",
+            "w": [
+                "5",
+                "8",
+                "4"
+            ]
+        },
+        {
+            "q": "9 × 2 = ?",
+            "a": "18",
+            "w": [
+                "16",
+                "28",
+                "19"
+            ]
+        },
+        {
+            "q": "6 × 2 = ?",
+            "a": "12",
+            "w": [
+                "22",
+                "14",
+                "10"
+            ]
+        },
+        {
+            "q": "40 + 10 = ?",
+            "a": "50",
+            "w": [
+                "48",
+                "40",
+                "51"
+            ]
+        },
+        {
+            "q": "3 × 5 = ?",
+            "a": "15",
+            "w": [
+                "14",
+                "13",
+                "5"
+            ]
+        },
+        {
+            "q": "6 × 6 = ?",
+            "a": "36",
+            "w": [
+                "46",
+                "34",
+                "35"
+            ]
+        },
+        {
+            "q": "20 - 10",
+            "a": "10",
+            "w": [
+                "12",
+                "11",
+                "20"
+            ]
+        },
+        {
+            "q": "9 × 3 = ?",
+            "a": "27",
+            "w": [
+                "25",
+                "37",
+                "29"
+            ]
+        },
+        {
+            "q": "8 + 5 = ?",
+            "a": "13",
+            "w": [
+                "3",
+                "11",
+                "14"
+            ]
+        },
+        {
+            "q": "4 × 2 = ?",
+            "a": "8",
+            "w": [
+                "9",
+                "10",
+                "6"
+            ]
+        },
+        {
+            "q": "7 × 3 = ?",
+            "a": "21",
+            "w": [
+                "11",
+                "31",
+                "22"
+            ]
+        },
+        {
+            "q": "12 + 4 = ?",
+            "a": "16",
+            "w": [
+                "14",
+                "18",
+                "15"
+            ]
+        },
+        {
+            "q": "10 ÷ 2 = ?",
+            "a": "5",
+            "w": [
+                "7",
+                "6",
+                "4"
+            ]
+        },
+        {
+            "q": "20 + 20 = ?",
+            "a": "40",
+            "w": [
+                "39",
+                "42",
+                "30"
+            ]
+        },
+        {
+            "q": "6 × 2 = ?",
+            "a": "12",
+            "w": [
+                "10",
+                "22",
+                "14"
+            ]
+        },
+        {
+            "q": "5 × 6 = ?",
+            "a": "30",
+            "w": [
+                "20",
+                "31",
+                "29"
+            ]
+        },
+        {
+            "q": "7 + 7 = ?",
+            "a": "14",
+            "w": [
+                "24",
+                "16",
+                "4"
+            ]
+        },
+        {
+            "q": "6 × 4 = ?",
+            "a": "24",
+            "w": [
+                "25",
+                "26",
+                "23"
+            ]
+        },
+        {
+            "q": "3 × 3 = ?",
+            "a": "9",
+            "w": [
+                "19",
+                "7",
+                "10"
+            ]
+        },
+        {
+            "q": "9 × 2 = ?",
+            "a": "18",
+            "w": [
+                "16",
+                "19",
+                "20"
+            ]
+        },
+        {
+            "q": "12 ÷ 2 = ?",
+            "a": "6",
+            "w": [
+                "4",
+                "7",
+                "8"
+            ]
+        },
+        {
+            "q": "15 + 7 = ?",
+            "a": "22",
+            "w": [
+                "32",
+                "24",
+                "20"
+            ]
+        },
+        {
+            "q": "21 ÷ 3 = ?",
+            "a": "7",
+            "w": [
+                "6",
+                "8",
+                "5"
+            ]
+        },
+        {
+            "q": "6 × 8 = ?",
+            "a": "48",
+            "w": [
+                "58",
+                "38",
+                "50"
+            ]
+        },
+        {
+            "q": "32 ÷ 2 = ?",
+            "a": "16",
+            "w": [
+                "17",
+                "15",
+                "18"
+            ]
+        },
+        {
+            "q": "10 + 10 = ?",
+            "a": "20",
+            "w": [
+                "19",
+                "30",
+                "22"
+            ]
+        },
+        {
+            "q": "5 × 2 = ?",
+            "a": "10",
+            "w": [
+                "20",
+                "9",
+                "8"
+            ]
+        },
+        {
+            "q": "7 × 5 = ?",
+            "a": "35",
+            "w": [
+                "37",
+                "25",
+                "36"
+            ]
+        },
+        {
+            "q": "6 × 2 = ?",
+            "a": "12",
+            "w": [
+                "13",
+                "11",
+                "2"
+            ]
+        },
+        {
+            "q": "4 × 7 = ?",
+            "a": "28",
+            "w": [
+                "27",
+                "26",
+                "38"
+            ]
+        },
+        {
+            "q": "16 ÷ 2 = ?",
+            "a": "8",
+            "w": [
+                "9",
+                "7",
+                "10"
+            ]
+        },
+        {
+            "q": "5 × 3 = ?",
+            "a": "15",
+            "w": [
+                "16",
+                "5",
+                "25"
+            ]
+        },
+        {
+            "q": "12 ÷ 2 = ?",
+            "a": "6",
+            "w": [
+                "16",
+                "7",
+                "5"
+            ]
+        }
+    ],
+    "hard": [
+        {
+            "q": "25 + 17 = ?",
+            "a": "42",
+            "w": [
+                "41",
+                "40",
+                "43"
+            ]
+        },
+        {
+            "q": "40 - 18",
+            "a": "22",
+            "w": [
+                "23",
+                "21",
+                "32"
+            ]
+        },
+        {
+            "q": "6 × 4 = ?",
+            "a": "24",
+            "w": [
+                "23",
+                "26",
+                "22"
+            ]
+        },
+        {
+            "q": "45 ÷ 9 = ?",
+            "a": "5",
+            "w": [
+                "4",
+                "15",
+                "3"
+            ]
+        },
+        {
+            "q": "12 - 3 + 5 = ?",
+            "a": "14",
+            "w": [
+                "24",
+                "13",
+                "12"
+            ]
+        },
+        {
+            "q": "50 - 3",
+            "a": "47",
+            "w": [
+                "57",
+                "48",
+                "37"
+            ]
+        },
+        {
+            "q": "7 × 5 = ?",
+            "a": "35",
+            "w": [
+                "25",
+                "45",
+                "33"
+            ]
+        },
+        {
+            "q": "3 boxes of 10",
+            "a": "30",
+            "w": [
+                "28",
+                "29",
+                "20"
+            ]
+        },
+        {
+            "q": "9 × 7 = ?",
+            "a": "63",
+            "w": [
+                "73",
+                "61",
+                "53"
+            ]
+        },
+        {
+            "q": "56 ÷ 2 = ?",
+            "a": "28",
+            "w": [
+                "26",
+                "18",
+                "30"
+            ]
+        },
+        {
+            "q": "9 × 9 = ?",
+            "a": "81",
+            "w": [
+                "71",
+                "82",
+                "80"
+            ]
+        },
+        {
+            "q": "49 ÷ 7 = ?",
+            "a": "7",
+            "w": [
+                "9",
+                "17",
+                "6"
+            ]
+        },
+        {
+            "q": "6 × 9 = ?",
+            "a": "54",
+            "w": [
+                "56",
+                "64",
+                "44"
+            ]
+        },
+        {
+            "q": "72 ÷ 2 = ?",
+            "a": "36",
+            "w": [
+                "34",
+                "26",
+                "35"
+            ]
+        },
+        {
+            "q": "20 + 5 = ?",
+            "a": "25",
+            "w": [
+                "27",
+                "35",
+                "26"
+            ]
+        },
+        {
+            "q": "15 + 3 = ?",
+            "a": "18",
+            "w": [
+                "19",
+                "8",
+                "20"
+            ]
+        },
+        {
+            "q": "8 × 9 = ?",
+            "a": "72",
+            "w": [
+                "71",
+                "73",
+                "82"
+            ]
+        },
+        {
+            "q": "81 ÷ 9 = ?",
+            "a": "9",
+            "w": [
+                "19",
+                "10",
+                "11"
+            ]
+        },
+        {
+            "q": "8 × 8 = ?",
+            "a": "64",
+            "w": [
+                "65",
+                "54",
+                "63"
+            ]
+        },
+        {
+            "q": "5 × 8 = ?",
+            "a": "40",
+            "w": [
+                "38",
+                "30",
+                "41"
+            ]
+        },
+        {
+            "q": "7 × 8 = ?",
+            "a": "56",
+            "w": [
+                "66",
+                "57",
+                "55"
+            ]
+        },
+        {
+            "q": "30 - 3",
+            "a": "27",
+            "w": [
+                "28",
+                "17",
+                "26"
+            ]
+        },
+        {
+            "q": "9 × 5 = ?",
+            "a": "45",
+            "w": [
+                "43",
+                "44",
+                "55"
+            ]
+        },
+        {
+            "q": "54 ÷ 9 = ?",
+            "a": "6",
+            "w": [
+                "7",
+                "16",
+                "5"
+            ]
+        },
+        {
+            "q": "9 × 10 = ?",
+            "a": "90",
+            "w": [
+                "92",
+                "100",
+                "88"
+            ]
+        },
+        {
+            "q": "17 + 17 = ?",
+            "a": "34",
+            "w": [
+                "35",
+                "24",
+                "33"
+            ]
+        },
+        {
+            "q": "3 × 7 = ?",
+            "a": "21",
+            "w": [
+                "11",
+                "20",
+                "22"
+            ]
+        },
+        {
+            "q": "64 ÷ 8 = ?",
+            "a": "8",
+            "w": [
+                "10",
+                "7",
+                "9"
+            ]
+        },
+        {
+            "q": "6 × 10 = ?",
+            "a": "60",
+            "w": [
+                "58",
+                "70",
+                "59"
+            ]
+        },
+        {
+            "q": "45 ÷ 3 = ?",
+            "a": "15",
+            "w": [
+                "17",
+                "5",
+                "25"
+            ]
+        },
+        {
+            "q": "6 × 8 = ?",
+            "a": "48",
+            "w": [
+                "58",
+                "47",
+                "38"
+            ]
+        },
+        {
+            "q": "4 × 8 = ?",
+            "a": "32",
+            "w": [
+                "31",
+                "34",
+                "42"
+            ]
+        },
+        {
+            "q": "15 × 5 = ?",
+            "a": "75",
+            "w": [
+                "65",
+                "76",
+                "73"
+            ]
+        },
+        {
+            "q": "24 ÷ 2 = ?",
+            "a": "12",
+            "w": [
+                "13",
+                "14",
+                "22"
+            ]
+        },
+        {
+            "q": "12 × 7 = ?",
+            "a": "84",
+            "w": [
+                "85",
+                "83",
+                "74"
+            ]
+        },
+        {
+            "q": "63 ÷ 9 = ?",
+            "a": "7",
+            "w": [
+                "8",
+                "17",
+                "5"
+            ]
+        },
+        {
+            "q": "11 × 6 = ?",
+            "a": "66",
+            "w": [
+                "76",
+                "65",
+                "64"
+            ]
+        },
+        {
+            "q": "9 × 2 = ?",
+            "a": "18",
+            "w": [
+                "28",
+                "20",
+                "16"
+            ]
+        },
+        {
+            "q": "50 + 50 = ?",
+            "a": "100",
+            "w": [
+                "110",
+                "99",
+                "90"
+            ]
+        },
+        {
+            "q": "100 ÷ 4 = ?",
+            "a": "25",
+            "w": [
+                "26",
+                "23",
+                "27"
+            ]
+        },
+        {
+            "q": "6 × 7 = ?",
+            "a": "42",
+            "w": [
+                "43",
+                "52",
+                "32"
+            ]
+        },
+        {
+            "q": "4 × 4 = ?",
+            "a": "16",
+            "w": [
+                "6",
+                "14",
+                "15"
+            ]
+        },
+        {
+            "q": "6 × 6 = ?",
+            "a": "36",
+            "w": [
+                "38",
+                "37",
+                "35"
+            ]
+        },
+        {
+            "q": "81 ÷ 9 = ?",
+            "a": "9",
+            "w": [
+                "7",
+                "10",
+                "8"
+            ]
+        },
+        {
+            "q": "9 × 9 = ?",
+            "a": "81",
+            "w": [
+                "71",
+                "80",
+                "79"
+            ]
+        },
+        {
+            "q": "6 × 4 = ?",
+            "a": "24",
+            "w": [
+                "23",
+                "14",
+                "34"
+            ]
+        },
+        {
+            "q": "7 × 8 = ?",
+            "a": "56",
+            "w": [
+                "55",
+                "66",
+                "54"
+            ]
+        },
+        {
+            "q": "28 ÷ 2 = ?",
+            "a": "14",
+            "w": [
+                "4",
+                "12",
+                "15"
+            ]
+        },
+        {
+            "q": "9 × 8 = ?",
+            "a": "72",
+            "w": [
+                "74",
+                "82",
+                "71"
+            ]
+        },
+        {
+            "q": "4 × 5 = ?",
+            "a": "20",
+            "w": [
+                "19",
+                "18",
+                "10"
+            ]
+        },
+        {
+            "q": "7 × 9 = ?",
+            "a": "63",
+            "w": [
+                "65",
+                "61",
+                "62"
+            ]
+        },
+        {
+            "q": "24 ÷ 2 = ?",
+            "a": "12",
+            "w": [
+                "13",
+                "2",
+                "10"
+            ]
+        },
+        {
+            "q": "5 × 8 = ?",
+            "a": "40",
+            "w": [
+                "42",
+                "41",
+                "39"
+            ]
+        },
+        {
+            "q": "32 ÷ 4 = ?",
+            "a": "8",
+            "w": [
+                "7",
+                "10",
+                "9"
+            ]
+        },
+        {
+            "q": "9 × 10 = ?",
+            "a": "90",
+            "w": [
+                "88",
+                "91",
+                "89"
+            ]
+        },
+        {
+            "q": "6 × 5 = ?",
+            "a": "30",
+            "w": [
+                "31",
+                "28",
+                "20"
+            ]
+        },
+        {
+            "q": "9 × 5 = ?",
+            "a": "45",
+            "w": [
+                "47",
+                "46",
+                "35"
+            ]
+        },
+        {
+            "q": "3 × 5 = ?",
+            "a": "15",
+            "w": [
+                "5",
+                "14",
+                "13"
+            ]
+        },
+        {
+            "q": "4 × 7 = ?",
+            "a": "28",
+            "w": [
+                "29",
+                "38",
+                "30"
+            ]
+        },
+        {
+            "q": "21 ÷ 3 = ?",
+            "a": "7",
+            "w": [
+                "6",
+                "5",
+                "17"
+            ]
+        },
+        {
+            "q": "8 × 8 = ?",
+            "a": "64",
+            "w": [
+                "74",
+                "63",
+                "54"
+            ]
+        },
+        {
+            "q": "4 × 4 = ?",
+            "a": "16",
+            "w": [
+                "14",
+                "17",
+                "26"
+            ]
+        },
+        {
+            "q": "9 × 9 = ?",
+            "a": "81",
+            "w": [
+                "91",
+                "79",
+                "80"
+            ]
+        },
+        {
+            "q": "27 ÷ 3 = ?",
+            "a": "9",
+            "w": [
+                "7",
+                "19",
+                "10"
+            ]
+        },
+        {
+            "q": "10 × 10 = ?",
+            "a": "100",
+            "w": [
+                "110",
+                "101",
+                "102"
+            ]
+        },
+        {
+            "q": "4 × 5 = ?",
+            "a": "20",
+            "w": [
+                "21",
+                "22",
+                "30"
+            ]
+        },
+        {
+            "q": "6 × 6 = ?",
+            "a": "36",
+            "w": [
+                "46",
+                "35",
+                "37"
+            ]
+        },
+        {
+            "q": "12 ÷ 2 = ?",
+            "a": "6",
+            "w": [
+                "8",
+                "7",
+                "4"
+            ]
+        },
+        {
+            "q": "8 × 9 = ?",
+            "a": "72",
+            "w": [
+                "62",
+                "73",
+                "74"
+            ]
+        },
+        {
+            "q": "3 × 6 = ?",
+            "a": "18",
+            "w": [
+                "16",
+                "19",
+                "28"
+            ]
+        },
+        {
+            "q": "6 × 8 = ?",
+            "a": "48",
+            "w": [
+                "58",
+                "46",
+                "38"
+            ]
+        },
+        {
+            "q": "24 ÷ 2 = ?",
+            "a": "12",
+            "w": [
+                "13",
+                "10",
+                "14"
+            ]
+        },
+        {
+            "q": "6 × 9 = ?",
+            "a": "54",
+            "w": [
+                "44",
+                "53",
+                "56"
+            ]
+        },
+        {
+            "q": "81 ÷ 3 = ?",
+            "a": "27",
+            "w": [
+                "25",
+                "17",
+                "37"
+            ]
+        },
+        {
+            "q": "7 × 9 = ?",
+            "a": "63",
+            "w": [
+                "53",
+                "62",
+                "73"
+            ]
+        },
+        {
+            "q": "3 × 7 = ?",
+            "a": "21",
+            "w": [
+                "22",
+                "19",
+                "31"
+            ]
+        },
+        {
+            "q": "12 × 7 = ?",
+            "a": "84",
+            "w": [
+                "86",
+                "94",
+                "83"
+            ]
+        },
+        {
+            "q": "28 ÷ 2 = ?",
+            "a": "14",
+            "w": [
+                "16",
+                "13",
+                "4"
+            ]
+        },
+        {
+            "q": "4 × 8 = ?",
+            "a": "32",
+            "w": [
+                "30",
+                "34",
+                "31"
+            ]
+        },
+        {
+            "q": "16 ÷ 2 = ?",
+            "a": "8",
+            "w": [
+                "18",
+                "9",
+                "7"
+            ]
+        },
+        {
+            "q": "5 × 8 = ?",
+            "a": "40",
+            "w": [
+                "42",
+                "38",
+                "39"
+            ]
+        },
+        {
+            "q": "20 ÷ 2 = ?",
+            "a": "10",
+            "w": [
+                "11",
+                "9",
+                "8"
+            ]
+        },
+        {
+            "q": "7 × 8 = ?",
+            "a": "56",
+            "w": [
+                "54",
+                "46",
+                "58"
+            ]
+        },
+        {
+            "q": "49 ÷ 7 = ?",
+            "a": "7",
+            "w": [
+                "5",
+                "9",
+                "8"
+            ]
+        },
+        {
+            "q": "9 × 10 = ?",
+            "a": "90",
+            "w": [
+                "91",
+                "89",
+                "80"
+            ]
+        },
+        {
+            "q": "3 × 5 = ?",
+            "a": "15",
+            "w": [
+                "25",
+                "13",
+                "5"
+            ]
+        },
+        {
+            "q": "15 × 5 = ?",
+            "a": "75",
+            "w": [
+                "65",
+                "74",
+                "77"
+            ]
+        },
+        {
+            "q": "100 ÷ 4 = ?",
+            "a": "25",
+            "w": [
+                "35",
+                "26",
+                "15"
+            ]
+        },
+        {
+            "q": "11 × 6 = ?",
+            "a": "66",
+            "w": [
+                "56",
+                "64",
+                "76"
+            ]
+        },
+        {
+            "q": "22 ÷ 2 = ?",
+            "a": "11",
+            "w": [
+                "1",
+                "10",
+                "13"
+            ]
+        },
+        {
+            "q": "6 × 7 = ?",
+            "a": "42",
+            "w": [
+                "43",
+                "32",
+                "52"
+            ]
+        },
+        {
+            "q": "12 ÷ 2 = ?",
+            "a": "6",
+            "w": [
+                "8",
+                "4",
+                "16"
+            ]
+        },
+        {
+            "q": "4 × 6 = ?",
+            "a": "24",
+            "w": [
+                "25",
+                "22",
+                "23"
+            ]
+        },
+        {
+            "q": "9 ÷ 3 = ?",
+            "a": "3",
+            "w": [
+                "13",
+                "4",
+                "2"
+            ]
+        },
+        {
+            "q": "6 × 8 = ?",
+            "a": "48",
+            "w": [
+                "38",
+                "47",
+                "49"
+            ]
+        },
+        {
+            "q": "16 ÷ 2 = ?",
+            "a": "8",
+            "w": [
+                "10",
+                "6",
+                "9"
+            ]
+        },
+        {
+            "q": "6 × 6 = ?",
+            "a": "36",
+            "w": [
+                "37",
+                "35",
+                "26"
+            ]
+        },
+        {
+            "q": "81 ÷ 9 = ?",
+            "a": "9",
+            "w": [
+                "11",
+                "8",
+                "10"
+            ]
+        },
+        {
+            "q": "12 × 5 = ?",
+            "a": "60",
+            "w": [
+                "59",
+                "70",
+                "50"
+            ]
+        },
+        {
+            "q": "24 ÷ 2 = ?",
+            "a": "12",
+            "w": [
+                "13",
+                "10",
+                "14"
+            ]
+        }
+    ]
+},
+            animals: {
+                easy: [
+                    { q: "Which one is a fish?", a: "🐠", w: ["🐶", "🐔", "🐄"] },
+                    { q: "Which one can fly?", a: "🦅", w: ["🐘", "🐢", "🐄"] },
+                    { q: "Which one is a farm animal?", a: "🐄", w: ["🐅", "🐬", "🐘"] },
+                    { q: "Which one lives in water?", a: "🐬", w: ["🐱", "🐓", "🐶"] },
+                    { q: "Which one is a pet?", a: "🐶", w: ["🦓", "🐊", "🐅"] },
+                    { q: "Which one is the biggest?", a: "🐘", w: ["🐭", "🐰", "🐱"] },
+                    { q: "Which one has wings?", a: "🦅", w: ["🐶", "🐘", "🐍"] },
+                    { q: "Which one has a long neck?", a: "🦒", w: ["🐘", "🐄", "🐅"] },
+                    { q: "Which one says 'moo'?", a: "🐄", w: ["🐶", "🐱", "🐴"] },
+                    { q: "Which one lives in the sea?", a: "🐠", w: ["🐶", "🐘", "🐔"] },
+                    { q: "Which one has stripes?", a: "🦓", w: ["🐘", "🐄", "🐶"] },
+                    { q: "Which one hops?", a: "🦘", w: ["🐘", "🐄", "🐱"] }
+                ],
+                medium: [
+                    { q: "Which one is a mammal?", a: "🐬", w: ["🐠", "🦎", "🐍"] },
+                    { q: "Which one lays eggs?", a: "🐔", w: ["🐶", "🐄", "🐴"] },
+                    { q: "Which one is a predator?", a: "🦁", w: ["🐑", "🐰", "🐄"] },
+                    { q: "Which one lives in cold places?", a: "🐧", w: ["🐒", "🐫", "🐘"] },
+                    { q: "Which one can climb trees?", a: "🐒", w: ["🐘", "🐄", "🐴"] },
+                    { q: "Which one is cold-blooded?", a: "🐍", w: ["🐶", "🐴", "🐄"] },
+                    { q: "Which one eats meat?", a: "🦁", w: ["🐰", "🐄", "🐘"] },
+                    { q: "Which one lives in the jungle?", a: "🐒", w: ["🐧", "🐻", "🐫"] },
+                    { q: "Which one is a herbivore?", a: "🐄", w: ["🦁", "🐍", "🐺"] },
+                    { q: "Which one is active at night?", a: "🦉", w: ["🐔", "🐓", "🐦"] },
+                    { q: "Which one can swim and walk on land?", a: "🐢", w: ["🐘", "🐴", "🐄"] },
+                    { q: "Which one has sharp teeth?", a: "🦈", w: ["🐰", "🐄", "🐘"] }
+                ],
+                hard: [
+                    { q: "Which one is NOT a mammal?", a: "🐠", w: ["🐬", "🐋", "🐶"] },
+                    { q: "Which one cannot fly?", a: "🐧", w: ["🦅", "🐦", "🕊️"] },
+                    { q: "Which one lives the longest?", a: "🐢", w: ["🐶", "🐭", "🐱"] },
+                    { q: "Which one is the fastest?", a: "🐆", w: ["🐘", "🐢", "🐄"] },
+                    { q: "Which one is an omnivore?", a: "🐻", w: ["🐅", "🐰", "🐄"] },
+                    { q: "Which one uses camouflage?", a: "🦎", w: ["🐘", "🐄", "🐎"] },
+                    { q: "Which one lives in water and is a mammal?", a: "🐬", w: ["🐠", "🐢", "🦈"] },
+                    { q: "Which one is NOT dangerous?", a: "🐰", w: ["🐯", "🐍", "🦁"] },
+                    { q: "Which one has the best eyesight?", a: "🦅", w: ["🐢", "🐄", "🐘"] },
+                    { q: "Which one can survive without water the longest?", a: "🐫", w: ["🐶", "🐘", "🐄"] },
+                    { q: "Which one is NOT found on land?", a: "🐠", w: ["🐶", "🐴", "🐘"] },
+                    { q: "Which one hunts at night?", a: "🦉", w: ["🐔", "🐦", "🦆"] }
+                ]
+            },
+            motherTongue: {
+                chinese: {
+                    easy: [
+                        { q: "'Apple' is", a: "苹果", w: ["香蕉", "橘子", "葡萄"] },
+                        { q: "'Dog' is", a: "狗", w: ["猫", "鸟", "鱼"] },
+                        { q: "'One' is", a: "一", w: ["二", "三", "四"] },
+                        { q: "'Red' is", a: "红色", w: ["蓝色", "绿色", "黄色"] },
+                        { q: "'Sun' is", a: "太阳", w: ["月亮", "星星", "云"] },
+                        { q: "'Water' is", a: "水", w: ["火", "土", "木"] },
+                        { q: "'Eye' is", a: "眼睛", w: ["鼻子", "耳朵", "嘴巴"] },
+                        { q: "'Big' is", a: "大", w: ["小", "多", "少"] }
+                    ],
+                    medium: [
+                        { q: "'Hello' is", a: "你好", w: ["再见", "谢谢", "对不起"] },
+                        { q: "'Good morning' is", a: "早上好", w: ["晚上好", "晚安", "中午好"] },
+                        { q: "'Thank you' is", a: "谢谢", w: ["不客气", "没事", "拜拜"] },
+                        { q: "'I am hungry' is", a: "我饿了", w: ["我饱了", "我渴了", "我累了"] },
+                        { q: "'What is your name?' is", a: "你叫什么名字？", w: ["你几岁？", "你去哪？", "你是谁？"] },
+                        { q: "'Teacher' is", a: "老师", w: ["学生", "医生", "警察"] },
+                        { q: "'Book' is", a: "书", w: ["笔", "纸", "橡皮"] },
+                        { q: "'School' is", a: "学校", w: ["医院", "商店", "公园"] }
+                    ],
+                    hard: [
+                        { q: "'I like to eat apples' is", a: "我喜欢吃苹果", w: ["我不喜欢苹果", "他喜欢吃梨", "苹果很好吃"] },
+                        { q: "'Where is bathroom?' is", a: "洗手间在哪里？", w: ["现在几点？", "这个多少钱？", "我迷路了"] },
+                        { q: "'Today is Monday' is", a: "今天是星期一", w: ["明天是星期二", "昨天是星期天", "今天是周末"] },
+                        { q: "'How much is this?' is", a: "这个多少钱？", w: ["这是什么？", "你要买吗？", "太贵了"] },
+                        { q: "'My friend is smart' is", a: "我的朋友很聪明", w: ["我的弟弟很高", "我的老师很好", "你的朋友是谁"] },
+                        { q: "'Happy birthday' is", a: "生日快乐", w: ["新年快乐", "圣诞快乐", "毕业快乐"] },
+                        { q: "'I want to drink water' is", a: "我想喝水", w: ["我想吃饭", "我想睡觉", "我想玩"] },
+                        { q: "'The weather is good' is", a: "天气很好", w: ["会下雨", "现在很冷", "风很大"] }
+                    ]
+                },
+                malay: {
+                    easy: [
+                        { q: "'Apple' is", a: "Epal", w: ["Pisang", "Oren", "Anggur"] },
+                        { q: "'Dog' is", a: "Anjing", w: ["Kucing", "Burung", "Ikan"] },
+                        { q: "'One' is", a: "Satu", w: ["Dua", "Tiga", "Empat"] },
+                        { q: "'Red' is", a: "Merah", w: ["Biru", "Hijau", "Kuning"] },
+                        { q: "'Sun' is", a: "Matahari", w: ["Bulan", "Bintang", "Awan"] },
+                        { q: "'Water' is", a: "Air", w: ["Api", "Tanah", "Angin"] },
+                        { q: "'Eye' is", a: "Mata", w: ["Hidung", "Telinga", "Mulut"] },
+                        { q: "'Big' is", a: "Besar", w: ["Kecil", "Banyak", "Sedikit"] }
+                    ],
+                    medium: [
+                        { q: "'Hello' is", a: "Helo", w: ["Selamat tinggal", "Terima kasih", "Maaf"] },
+                        { q: "'Good morning' is", a: "Selamat pagi", w: ["Selamat malam", "Selamat petang", "Selamat sejahtera"] },
+                        { q: "'Thank you' is", a: "Terima kasih", w: ["Sama-sama", "Tidak mengapa", "Boleh"] },
+                        { q: "'I am hungry' is", a: "Saya lapar", w: ["Saya kenyang", "Saya dahaga", "Saya penat"] },
+                        { q: "'What is your name?' is", a: "Siapa nama awak?", w: ["Berapa umur awak?", "Awak nak ke mana?", "Siapa ini?"] },
+                        { q: "'Teacher' is", a: "Cikgu", w: ["Murid", "Doktor", "Polis"] },
+                        { q: "'Book' is", a: "Buku", w: ["Pensel", "Kertas", "Pemadam"] },
+                        { q: "'School' is", a: "Sekolah", w: ["Hospital", "Kedai", "Taman"] }
+                    ],
+                    hard: [
+                        { q: "'I like to eat apples' is", a: "Saya suka makan epal", w: ["Saya tidak suka epal", "Dia suka makan pir", "Epal ini sedap"] },
+                        { q: "'Where is bathroom?' is", a: "Di mana tandas?", w: ["Pukul berapa?", "Berapa harganya?", "Saya sesat"] },
+                        { q: "'Today is Monday' is", a: "Hari ini hari Isnin", w: ["Esok hari Selasa", "Semalam hari Ahad", "Hari ini cuti"] },
+                        { q: "'How much is this?' is", a: "Berapa harga ini?", w: ["Apakah ini?", "Awak nak beli?", "Sangat mahal"] },
+                        { q: "'My friend is smart' is", a: "Kawan saya pandai", w: ["Adik saya tinggi", "Cikgu saya baik", "Siapa kawan awak"] },
+                        { q: "'Happy birthday' is", a: "Selamat hari jadi", w: ["Selamat tahun baru", "Selamat hari raya", "Tahniah"] },
+                        { q: "'I want to drink water' is", a: "Saya mahu minum air", w: ["Saya mahu makan", "Saya mahu tidur", "Saya mahu main"] },
+                        { q: "'The weather is good' is", a: "Cuaca baik", w: ["Akan hujan", "Sekarang sejuk", "Angin kuat"] }
+                    ]
+                },
+                tamil: {
+                    easy: [
+                        { q: "'Apple' is", a: "ஆப்பிள்", w: ["வாழைப்பழம்", "ஆரஞ்சு", "திராட்சை"] },
+                        { q: "'Dog' is", a: "நாய்", w: ["பூனை", "குருவி", "மீன்"] },
+                        { q: "'One' is", a: "ஒன்று", w: ["இரண்டு", "மூன்று", "நான்கு"] },
+                        { q: "'Red' is", a: "சிவப்பு", w: ["நீலம்", "பச்சை", "மஞ்சள்"] },
+                        { q: "'Sun' is", a: "சூரியன்", w: ["சந்திரன்", "நட்சத்திரம்", "மேகம்"] },
+                        { q: "'Water' is", a: "தண்ணீர்", w: ["நெருப்பு", "மண்", "காற்று"] },
+                        { q: "'Eye' is", a: "கண்", w: ["மூக்கு", "காது", "வாய்"] },
+                        { q: "'Big' is", a: "பெரிய", w: ["சிறிய", "நிறைய", "கொஞ்சம்"] }
+                    ],
+                    medium: [
+                        { q: "'Hello' is", a: "வணக்கம்", w: ["போய் வருகிறேன்", "நன்றி", "மன்னிக்கவும்"] },
+                        { q: "'Good morning' is", a: "காலை வணக்கம்", w: ["மாலை வணக்கம்", "நல்ல இரவு", "மதிய வணக்கம்"] },
+                        { q: "'Thank you' is", a: "நன்றி", w: ["பரவாயில்லை", "சரி", "வருக"] },
+                        { q: "'I am hungry' is", a: "எனக்கு பசிக்கிறது", w: ["எனக்கு வயிறு நிறைந்தது", "எனக்கு தாகமாக உள்ளது", "நான் சோர்வாக இருக்கிறேன்"] },
+                        { q: "'What is your name?' is", a: "உன் பெயர் என்ன?", w: ["உனக்கு எத்தனை வயது?", "நீ எங்கே செல்கிறாய்?", "நீ யார்?"] },
+                        { q: "'Teacher' is", a: "ஆசிரியர்", w: ["மாணவர்", "மருத்துவர்", "காவலர்"] },
+                        { q: "'Book' is", a: "புத்தகம்", w: ["பேனா", "காகிதம்", "அழிப்பான்"] },
+                        { q: "'School' is", a: "பள்ளி", w: ["மருத்துவமனை", "கடை", "பூங்கா"] }
+                    ],
+                    hard: [
+                        { q: "'I like to eat apples' is", a: "எனக்கு ஆப்பிள் சாப்பிட பிடிக்கும்", w: ["எனக்கு ஆப்பிள் பிடிக்காது", "அவர் பேரிக்காய் சாப்பிடுவார்", "ஆப்பிள் சுவையாக உள்ளது"] },
+                        { q: "'Where is bathroom?' is", a: "கழிப்பறை எங்கே உள்ளது?", w: ["மணி என்ன?", "இதற்கு எவ்வளவு விலை?", "நான் வழி மாறிவிட்டேன்"] },
+                        { q: "'Today is Monday' is", a: "இன்று திங்கட்கிழமை", w: ["நாளை செவ்வாய்க்கிழமை", "நேற்று ஞாயிற்றுக்கிழமை", "இன்று விடுமுறை"] },
+                        { q: "'How much is this?' is", a: "இது எவ்வளவு?", w: ["இது என்ன?", "நீங்கள் வாங்க வேண்டுமா?", "மிகவும் விலை அதிகம்"] },
+                        { q: "'My friend is smart' is", a: "என் நண்பன் புத்திசாலி", w: ["என் தம்பி உயரமானவன்", "என் ஆசிரியர் நல்லவர்", "உன் நண்பன் யார்"] },
+                        { q: "'Happy birthday' is", a: "பிறந்தநாள் வாழ்த்துக்கள்", w: ["புத்தாண்டு வாழ்த்துக்கள்", "பொங்கல் வாழ்த்துக்கள்", "நல்வாழ்த்துக்கள்"] },
+                        { q: "'I want to drink water' is", a: "நான் தண்ணீர் குடிக்க வேண்டும்", w: ["நான் சாப்பிட வேண்டும்", "நான் தூங்க வேண்டும்", "நான் விளையாட வேண்டும்"] },
+                        { q: "'The weather is good' is", a: "வானிலை நன்றாக உள்ளது", w: ["மழை பெய்யும்", "இப்போது குளிராக உள்ளது", "காற்று பலமாக வீசுகிறது"] }
+                    ]
+                },
+                hindi: {
+                    easy: [
+                        { q: "'Apple' is", a: "सेब", w: ["केला", "संतरा", "अंगूर"] },
+                        { q: "'Dog' is", a: "कुत्ता", w: ["बिल्ली", "चिड़िया", "मछली"] },
+                        { q: "'One' is", a: "एक", w: ["दो", "तीन", "चार"] },
+                        { q: "'Red' is", a: "लाल", w: ["नीला", "हरा", "पीला"] },
+                        { q: "'Sun' is", a: "सूरज", w: ["चाँद", "तारा", "बादल"] },
+                        { q: "'Water' is", a: "पानी", w: ["आग", "मिट्टी", "हवा"] },
+                        { q: "'Eye' is", a: "आँख", w: ["नाक", "कान", "मुँह"] },
+                        { q: "'Big' is", a: "बड़ा", w: ["छोटा", "ज्यादा", "कम"] }
+                    ],
+                    medium: [
+                        { q: "'Hello' is", a: "नमस्ते", w: ["अलविदा", "धन्यवाद", "माफ़ करना"] },
+                        { q: "'Good morning' is", a: "शुभ प्रभात", w: ["शुभ रात्रि", "शुभ संध्या", "शुभ दोपहर"] },
+                        { q: "'Thank you' is", a: "धन्यवाद", w: ["कोई बात नहीं", "ठीक है", "स्वागत है"] },
+                        { q: "'I am hungry' is", a: "मुझे भूख लगी है", w: ["मेरा पेट भरा है", "मुझे प्यास लगी है", "मैं थक गया हूँ"] },
+                        { q: "'What is your name?' is", a: "तुम्हारा नाम क्या है?", w: ["तुम्हारी उम्र क्या है?", "तुम कहाँ जा रहे हो?", "तुम कौन हो?"] },
+                        { q: "'Teacher' is", a: "शिक्षक", w: ["छात्र", "डॉक्टर", "पुलिस"] },
+                        { q: "'Book' is", a: "किताब", w: ["कलम", "कागज़", "रबड़"] },
+                        { q: "'School' is", a: "विद्यालय", w: ["अस्पताल", "दुकान", "पार्क"] }
+                    ],
+                    hard: [
+                        { q: "'I like to eat apples' is", a: "मुझे सेब खाना पसंद है", w: ["मुझे सेब पसंद नहीं है", "उसे नाशपाती पसंद है", "सेब स्वादिष्ट है"] },
+                        { q: "'Where is bathroom?' is", a: "शौचालय कहाँ है?", w: ["समय क्या हुआ है?", "इसकी कीमत क्या है?", "मैं रास्ता भूल गया हूँ"] },
+                        { q: "'Today is Monday' is", a: "आज सोमवार है", w: ["कल मंगलवार है", "कल रविवार था", "आज छुट्टी है"] },
+                        { q: "'How much is this?' is", a: "यह कितने का है?", w: ["यह क्या है?", "क्या तुम खरीदना चाहते हो?", "बहुत महंगा है"] },
+                        { q: "'My friend is smart' is", a: "मेरा दोस्त चतुर है", w: ["मेरा भाई लंबा है", "मेरे शिक्षक अच्छे हैं", " तुम्हारा दोस्त कौन है"] },
+                        { q: "'Happy birthday' is", a: "जन्मदिन मुबारक", w: ["नया साल मुबारक", "दीवाली मुबारक", "बधाई हो"] },
+                        { q: "'I want to drink water' is", a: "मुझे पानी पीना है", w: ["मुझे खाना खाना है", "मुझे सोना है", "मुझे खेलना है"] },
+                        { q: "'The weather is good' is", a: "मौसम अच्छा है", w: ["बारिश होगी", "अब ठंड है", "तेज़ हवा है"] }
+                    ]
+                }
+            }
+        };
+
+        let currentTopic = 'math';
+        let currentDiff = 'easy';
+        let currentLang = 'chinese';
+
+        function selectTopic(topic) {
+            currentTopic = topic;
+            document.getElementById('topicMath').classList.remove('selected');
+            document.getElementById('topicAnimal').classList.remove('selected');
+            document.getElementById('topicMotherTongue').classList.remove('selected');
+            
+            if(topic === 'math') document.getElementById('topicMath').classList.add('selected');
+            else if(topic === 'animals') document.getElementById('topicAnimal').classList.add('selected');
+            else document.getElementById('topicMotherTongue').classList.add('selected');
+
+            if(topic === 'motherTongue') {
+                document.getElementById('languageSection').style.display = 'block';
+            } else {
+                document.getElementById('languageSection').style.display = 'none';
+            }
+        }
+
+        function selectLang(lang) {
+            currentLang = lang;
+            document.getElementById('langChinese').classList.remove('selected');
+            document.getElementById('langMalay').classList.remove('selected');
+            document.getElementById('langTamil').classList.remove('selected');
+            document.getElementById('langHindi').classList.remove('selected');
+            
+            if(lang === 'chinese') document.getElementById('langChinese').classList.add('selected');
+            if(lang === 'malay') document.getElementById('langMalay').classList.add('selected');
+            if(lang === 'tamil') document.getElementById('langTamil').classList.add('selected');
+            if(lang === 'hindi') document.getElementById('langHindi').classList.add('selected');
+        }
+
+        function selectDiff(diff) {
+            currentDiff = diff;
+            document.getElementById('diffEasy').classList.remove('selected');
+            document.getElementById('diffMedium').classList.remove('selected');
+            document.getElementById('diffHard').classList.remove('selected');
+            if(diff === 'easy') document.getElementById('diffEasy').classList.add('selected');
+            if(diff === 'medium') document.getElementById('diffMedium').classList.add('selected');
+            if(diff === 'hard') document.getElementById('diffHard').classList.add('selected');
+        }
+
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('overlay');
+        const ctx = canvas.getContext('2d');
+        const questionBox = document.getElementById('questionBox');
+        const indicator = document.getElementById('indicator');
+        const scoreEl = document.getElementById('score');
+        const timeEl = document.getElementById('time');
+
+        let cameraStarted = false;
+        let cursors = [];
+        let gameMode = 'catch'; // 'catch' or 'chop'
+        let currentQuestions = [];
+        let score = 0;
+        let timeLeft = 60;
+        let gameActive = false;
+        let itemsOnScreen = [];
+        let lastFrameTime = 0;
+        let gameLoopRAF;
+        let skipFrames = 0;
+        let chopModeState = 'WAITING_HANDS';
+
+        let particles = [];
+        function spawnParticles(x, y) {
+            for (let i = 0; i < 40; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 15,
+                    vy: (Math.random() - 0.5) * 15,
+                    life: 1.0,
+                    baseRad: Math.random() * 8 + 4,
+                    color: ['#ffda59', '#b3e55e', '#ff9eb3', '#6ec1e4'][Math.floor(Math.random() * 4)]
+                });
+            }
+        }
+
+        function fitCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        }
+        window.addEventListener('resize', fitCanvas);
+
+        async function initCamera() {
+            const hands = new Hands({
+                locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+            });
+            hands.setOptions({
+                maxNumHands: 2,
+                modelComplexity: 1,
+                minDetectionConfidence: 0.6,
+                minTrackingConfidence: 0.6
+            });
+            hands.onResults((results) => {
+                cursors = [];
+                if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                    for (let i = 0; i < results.multiHandLandmarks.length; i++) {
+                        const lm = results.multiHandLandmarks[i][8]; // index tip
+                        let rawX = 1.0 - lm.x;
+                        let rawY = lm.y;
+                        
+                        // Increase tracking span making reaching the screen edges easier 
+                        let boostX = 0.5 + (rawX - 0.5) * 1.4;
+                        let boostY = 0.5 + (rawY - 0.5) * 1.2;
+
+                        cursors.push({ x: boostX, y: boostY });
+                    }
+                }
+            });
+            const cam = new Camera(video, {
+                onFrame: async () => {
+                    await hands.send({ image: video });
+                },
+                width: 640,
+                height: 480
+            });
+            await cam.start();
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        async function startGame() {
+            const btn = document.getElementById('startBtn');
+            btn.innerText = "Loading Camera...";
+            btn.disabled = true;
+
+            try {
+                if(!cameraStarted) {
+                    await initCamera();
+                    cameraStarted = true;
+                }
+                
+                document.getElementById('startScreen').style.display = 'none';
+                document.getElementById('gameScreen').style.display = 'flex';
+                fitCanvas();
+
+                // 50% chance 'catch' or 'chop' game mechanics
+                gameMode = Math.random() < 0.5 ? 'catch' : 'chop';
+                
+                if (currentTopic === 'motherTongue') {
+                    currentQuestions = shuffle([...qsData[currentTopic][currentLang][currentDiff]]);
+                } else {
+                    currentQuestions = shuffle([...qsData[currentTopic][currentDiff]]);
+                }
+                score = 0;
+                timeLeft = 60;
+                gameActive = true;
+                scoreEl.textContent = score;
+                timeEl.textContent = timeLeft;
+
+                const t = setInterval(() => {
+                    if(!gameActive) {
+                        clearInterval(t);
+                        return;
+                    }
+                    timeLeft--;
+                    timeEl.textContent = timeLeft;
+                    if(timeLeft <= 0) {
+                        endGame();
+                    }
+                }, 1000);
+
+                nextQuestion();
+                gameLoopRAF = requestAnimationFrame(gameLoop);
+
+            } catch(e) {
+                console.error(e);
+                alert("Camera error: " + e.message);
+                btn.innerText = "▶️ Play Now!";
+                btn.disabled = false;
+            }
+        }
+
+        function nextQuestion() {
+            if(currentQuestions.length === 0) {
+                // reshuffle
+                if (currentTopic === 'motherTongue') {
+                    currentQuestions = shuffle([...qsData[currentTopic][currentLang][currentDiff]]);
+                } else {
+                    currentQuestions = shuffle([...qsData[currentTopic][currentDiff]]);
+                }
+            }
+            const q = currentQuestions.pop();
+            questionBox.textContent = q.q;
+            
+            // Animation for question box
+            questionBox.style.animation = 'none';
+            void questionBox.offsetWidth;
+            questionBox.style.animation = 'slideDown 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+
+            itemsOnScreen = [];
+            
+            const options = [
+                { text: q.a, isCorrect: true },
+                { text: q.w[0], isCorrect: false },
+                { text: q.w[1], isCorrect: false },
+                { text: q.w[2], isCorrect: false }
+            ];
+            shuffle(options);
+
+            if(gameMode === 'catch') {
+                // Spawn at top
+                for(let i=0; i<4; i++) {
+                    itemsOnScreen.push({
+                        ...options[i],
+                        x: 0.125 + (i * 0.25), // Spread out further
+                        y: -0.1, // start slightly above screen
+                        speed: (0.003 + (Math.random() * 0.002)) * 0.75 // 25% slower fall speed
+                    });
+                }
+                skipFrames = 30; // Prevent instant accidental tapping
+            } else {
+                // Chop mode: spawn at 4 corners
+                chopModeState = 'WAITING_HANDS';
+                window.pendingChopOptions = options;
+            }
+        }
+
+        function showPopup(type, text) {
+            indicator.className = `indicator ${type}`;
+            indicator.textContent = text;
+            indicator.style.animation = 'none';
+            void indicator.offsetWidth;
+            indicator.style.animation = 'popOut 1s forwards';
+        }
+
+        function gameLoop(time) {
+            if(!gameActive) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (gameMode === 'chop' && chopModeState === 'WAITING_HANDS') {
+                ctx.fillStyle = 'rgba(135, 206, 235, 0.4)';
+                ctx.beginPath(); ctx.arc(canvas.width * 0.3, canvas.height * 0.6, 90, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(canvas.width * 0.7, canvas.height * 0.6, 90, 0, Math.PI*2); ctx.fill();
+
+                ctx.font = 'bold 40px "Chewy", "Fredoka", sans-serif';
+                ctx.fillStyle = 'white';
+                ctx.textAlign = 'center';
+                ctx.shadowColor = 'black'; ctx.shadowBlur = 4;
+                ctx.fillText("Place both hands in the blue circles!", canvas.width / 2, canvas.height * 0.4);
+                ctx.shadowBlur = 0;
+                
+                let leftIn = false;
+                let rightIn = false;
+                for (let c of cursors) {
+                    const cPx = c.x * canvas.width;
+                    const cPy = c.y * canvas.height;
+                    if (Math.hypot(cPx - canvas.width * 0.3, cPy - canvas.height * 0.6) < 90) leftIn = true;
+                    if (Math.hypot(cPx - canvas.width * 0.7, cPy - canvas.height * 0.6) < 90) rightIn = true;
+                }
+                
+                for(let c of cursors) {
+                    const cx = c.x * canvas.width;
+                    const cy = c.y * canvas.height;
+                    ctx.font = '60px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('🖐️', cx, cy);
+                }
+
+                if (leftIn && rightIn) {
+                    chopModeState = 'PLAYING';
+                    const corners = [ {x: 0.15, y: 0.25}, {x: 0.85, y: 0.25}, {x: 0.15, y: 0.85}, {x: 0.85, y: 0.85} ];
+                    for(let i=0; i<4; i++) {
+                        itemsOnScreen.push({
+                            ...window.pendingChopOptions[i],
+                            x: corners[i].x,
+                            y: corners[i].y,
+                            size: 90
+                        });
+                    }
+                    skipFrames = 30;
+                }
+                gameLoopRAF = requestAnimationFrame(gameLoop);
+                return;
+            }
+
+            // Draw particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.02;
+                if (p.life <= 0) {
+                    particles.splice(i, 1);
+                } else {
+                    ctx.globalAlpha = p.life;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.baseRad, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color;
+                    ctx.fill();
+                    ctx.globalAlpha = 1.0;
+                }
+            }
+
+            // Draw items
+            for(let i=0; i<itemsOnScreen.length; i++) {
+                let item = itemsOnScreen[i];
+                
+                if(gameMode === 'catch') {
+                    if (!item.clicked) {
+                        item.y += item.speed;
+                    }
+                    // Reset if hits bottom
+                    if(item.y > 1.2) {
+                        item.y = -0.1;
+                    }
+                } else {
+                    // Chop mode: pulse size slightly
+                    if (!item.clicked) {
+                        item.size = 90 + Math.sin(time / 200 + i) * 8;
+                    }
+                }
+
+                // Draw background circle for item
+                const drawX = item.x * canvas.width;
+                const drawY = item.y * canvas.height;
+                
+                let drawRadius = gameMode === 'catch' ? 75 : item.size;
+
+                ctx.beginPath();
+                ctx.arc(drawX, drawY, drawRadius, 0, Math.PI*2);
+                ctx.fillStyle = item.clicked ? 'rgba(179, 229, 94, 0.95)' : (gameMode === 'catch' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 218, 89, 0.9)');
+                ctx.fill();
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = '#333';
+                ctx.stroke();
+
+                // Draw text/emoji inside
+                ctx.font = 'bold 54px "Fredoka", sans-serif';
+                ctx.fillStyle = '#333';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(item.text, drawX, drawY);
+            }
+
+            // Draw user cursors (green circle + icon)
+            for(let c of cursors) {
+                const cx = c.x * canvas.width;
+                const cy = c.y * canvas.height;
+                
+                if (gameMode === 'catch') {
+                    // Draw green circle
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, 60, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(74, 222, 128, 0.4)';
+                    ctx.fill();
+                    ctx.lineWidth = 6;
+                    ctx.strokeStyle = '#4ade80';
+                    ctx.stroke();
+
+                    // Draw Icon inside circle
+                    ctx.font = '90px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    const icon = currentTopic === 'math' ? '🧮' : (currentTopic === 'animals' ? '🐰' : '🌐');
+                    ctx.fillText(icon, cx, cy);
+                } else {
+                    ctx.font = '90px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('🖐️', cx, cy);
+                }
+            }
+
+            if(skipFrames > 0) skipFrames--;
+
+            // Collision detection
+            if(skipFrames <= 0) {
+                for(let i = itemsOnScreen.length - 1; i >= 0; i--) {
+                    let item = itemsOnScreen[i];
+                    let hit = false;
+                    
+                    for(let c of cursors) {
+                        const itemPx = item.x * canvas.width;
+                        const itemPy = item.y * canvas.height;
+                        const cursorPx = c.x * canvas.width;
+                        const cursorPy = c.y * canvas.height;
+                        const pixelDist = Math.hypot(itemPx - cursorPx, itemPy - cursorPy);
+                        const radius = gameMode === 'catch' ? 75 : item.size;
+                        
+                        if(pixelDist < radius * 0.7) { // requires the finger to be deep inside the circle
+                            hit = true;
+                            break;
+                        }
+                    }
+
+                    if(hit && !item.clicked) {
+                        if(item.isCorrect) {
+                            spawnParticles(item.x * canvas.width, item.y * canvas.height);
+                            item.clicked = true;
+                            score += 100;
+                            scoreEl.textContent = score;
+                            showPopup('right', 'Correct! ✨');
+                            skipFrames = 60;
+                            setTimeout(nextQuestion, 500);
+                        } else {
+                            score -= 20;
+                            scoreEl.textContent = score;
+                            showPopup('wrong', 'Oops! 💥');
+                            skipFrames = 30; // brief cooldown
+                            
+                            if(gameMode === 'catch') {
+                                // hide temporarily
+                                item.y = -0.5;
+                            } else {
+                                // Chop mode remove from screen
+                                itemsOnScreen.splice(i, 1);
+                            }
+                        }
+                    }
+                }
+            }
+
+            gameLoopRAF = requestAnimationFrame(gameLoop);
+        }
+
+        function endGame() {
+            gameActive = false;
+            cancelAnimationFrame(gameLoopRAF);
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('endScreen').style.display = 'flex';
+
+            // Send score to parent (KeepFit dashboard)
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'GAME_COMPLETE',
+                    gameId: 'Kids Learning Adventure',
+                    score: score
+                }, '*');
+            }
+        }
+
+    </script>
+</body>
+</html>

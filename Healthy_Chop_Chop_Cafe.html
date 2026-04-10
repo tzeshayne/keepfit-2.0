@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthy Chop Chop Cafe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Chewy&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-top: #fdfbfb;
+            --bg-bottom: #ebedee;
+            --panel: rgba(255, 255, 255, 0.9);
+            --txt: #333;
+            --accent: #ff9a9e;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            font-family: 'Chewy', 'Fredoka', cursive;
+            background: url('kitchen_bg.png') no-repeat center center fixed;
+            background-size: cover;
+            color: var(--txt);
+            overflow: hidden;
+            display: flex;
+        }
+
+
+
+        .container {
+            position: absolute;
+            left: 5%;
+            right: 5%;
+            top: 2%;
+            bottom: 2%;
+            width: 90%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .header {
+            width: 100%;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .speech-bubbles {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .speech-bubble {
+            color: white;
+            padding: 10px 20px;
+            font-size: 40px;
+            letter-spacing: 1px;
+            text-shadow: 
+                -2px -2px 0 #333, 2px -2px 0 #333,
+                -2px 2px 0 #333, 2px 2px 0 #333,
+                0px 6px 12px rgba(0,0,0,0.6);
+            position: relative;
+            z-index: 10;
+            animation: floatText 3s ease-in-out infinite;
+        }
+
+        @keyframes floatText {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .stage {
+            position: relative;
+            width: 100%;
+            height: 100%; /* Takes up remaining height after header */
+            border-radius: 20px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 8px solid white;
+            flex-grow: 1;
+        }
+
+        video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+
+        canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 5;
+        }
+
+        /* Recipe Panel */
+        .recipe-panel {
+            padding: 15px 30px;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            z-index: 10;
+            align-items: center;
+        }
+
+        .ingredient-slot {
+            width: 50px;
+            height: 50px;
+            font-size: 35px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+            position: relative;
+            filter: grayscale(1) opacity(0.5);
+        }
+
+        .ingredient-slot.active {
+            transform: scale(1.2);
+            filter: grayscale(0) opacity(1);
+            border-bottom: 4px solid #fca5a5;
+        }
+
+        .ingredient-slot.done {
+            filter: grayscale(0) opacity(1);
+        }
+
+        .ui-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            background: #ff6b6b;
+            color: white;
+            border: 4px solid #333;
+            padding: 12px 24px;
+            border-radius: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #333;
+            transition: all 0.1s;
+            font-family: inherit;
+        }
+
+        button:hover {
+            transform: translateY(2px);
+            box-shadow: 0 4px 0 #333;
+            filter: brightness(1.1);
+        }
+
+        button:active {
+            transform: translateY(6px);
+            box-shadow: 0 0px 0 #333;
+            filter: brightness(0.9);
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .stat-box {
+            color: white;
+            padding: 5px 15px;
+            font-size: 36px;
+            letter-spacing: 1px;
+            text-shadow: 
+                -2px -2px 0 #333, 2px -2px 0 #333,
+                -2px 2px 0 #333, 2px 2px 0 #333,
+                0px 6px 12px rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: none;
+            border: none;
+        }
+
+        .score-val { color: #ff6b6b; }
+        .time-val { color: #4ade80; }
+
+
+
+        /* End Screen */
+        #endScreen {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .end-panel {
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            text-align: center;
+            border: 6px solid #ff6b6b;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 80px;
+            font-weight: bold;
+            z-index: 50;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .indicator.right {
+            color: #4ade80;
+            opacity: 1;
+            animation: popOut 1s forwards;
+        }
+
+        .indicator.wrong {
+            color: #f87171;
+            opacity: 1;
+            animation: popOut 1s forwards;
+        }
+
+        @keyframes popOut {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+        }
+
+        /* SVG Chef */
+        .svg-chef {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 300px;
+            height: auto;
+            transform-origin: bottom left;
+            z-index: 15;
+            pointer-events: none;
+            filter: drop-shadow(0 15px 15px rgba(0,0,0,0.2));
+            animation: idle 3s infinite ease-in-out;
+        }
+
+        @keyframes idle {
+            0%, 100% { transform: scale(2) translateY(0) rotate(0); }
+            50% { transform: scale(2) translateY(-10px) rotate(2deg); }
+        }
+
+        #limboMsg {
+            position: absolute;
+            bottom: 20%;
+            width: 100%;
+            text-align: center;
+            color: yellow;
+            font-size: 32px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px #000;
+            z-index: 20;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- SVG Filter to remove white background and keep subject opaque -->
+    <svg style="position: absolute; width: 0; height: 0;">
+        <filter id="remove-white">
+            <feColorMatrix type="matrix" values="1 0 0 0 0
+                                                 0 1 0 0 0
+                                                 0 0 1 0 0
+                                                 -1 -1 -1 1 1" />
+        </filter>
+    </svg>
+
+    <img src="chef.png" class="svg-chef" alt="Chef">
+
+    <div id="startScreen" style="position: fixed; inset: 0; background: rgba(255,255,255,0.7); backdrop-filter: blur(8px); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100;">
+        <img src="title.png" alt="Healthy Chop Chop Cafe" style="max-width: 80%; max-height: 200px; object-fit: contain; margin-bottom: 40px; transform: scale(5); pointer-events: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));">
+        <div id="setupControls" style="display: flex; flex-direction: column; gap: 20px; align-items: center; background: rgba(255,255,255,0.9); padding: 40px; border-radius: 40px; border: 8px solid #ff6b6b; box-shadow: inset 0 0 20px rgba(0,0,0,0.05), 0 20px 40px rgba(0,0,0,0.2); position: relative; z-index: 10;">
+            <strong style="font-size: 28px;">1. Select Dish</strong>
+            <div style="display: flex; gap: 15px;">
+                <button id="dishSandwichBtn" style="background: #ffb347; font-size: 24px;">🥪 Sandwich</button>
+                <button id="dishPopiahBtn" style="background: #e8dccb; color: #333; font-size: 24px;">🌯 Popiah</button>
+                <button id="dishLaksaBtn" style="background: #ff6961; font-size: 24px;">🍜 Laksa</button>
+            </div>
+
+            <strong style="font-size: 28px; margin-top: 15px;">2. Select Difficulty</strong>
+            <div id="difficultyControls" style="display: flex; gap: 15px;">
+                <button id="easyBtn" style="background: #4ade80; font-size: 24px;">Easy 🐢</button>
+                <button id="mediumBtn" style="background: #fbbf24; font-size: 24px;">Med 🐰</button>
+                <button id="hardBtn" style="background: #f87171; font-size: 24px;">Hard 🚀</button>
+            </div>
+
+            <button id="startBtn" style="display: none; width: 100%; margin-top: 20px; font-size: 30px; background: #4ade80; border-color: #333; box-shadow: 0 8px 0 #333;">▶️ Start Order</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="speech-bubbles">
+                <div class="speech-bubble bottom" id="speechBubble" style="display: none;">let's complete it!</div>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-box">
+                    ⭐ Score <span class="score-val" id="score">0</span>
+                </div>
+                <div class="stat-box">
+                    ⏱️ <span class="time-val" id="time">120</span>s
+                </div>
+            </div>
+        </div>
+
+        <div class="stage">
+            <video id="video" playsinline muted></video>
+            <canvas id="overlay"></canvas>
+            <!-- Recipe panel floats inside camera to save space -->
+            <div class="recipe-panel" id="recipePanel" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 90%; justify-content: center; z-index: 10;">
+                <!-- Slots will be injected here -->
+            </div>
+            <div id="indicator" class="indicator"></div>
+        </div>
+    </div>
+
+    <div id="endScreen">
+        <div class="end-panel">
+            <h1 style="font-size: 40px; margin-bottom: 20px;">🎉 Shift Over! 🎉</h1>
+            <h2>Total Score: <span id="finalScore" style="color: #ff6b6b; font-size: 48px;">0</span></h2>
+            <button id="restartBtn" style="margin-top: 30px;">Play Again 🔄</button>
+        </div>
+    </div>
+
+    <!-- MediaPipe Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('overlay');
+        const ctx = canvas.getContext('2d');
+        const recipePanel = document.getElementById('recipePanel');
+        const speechBubble = document.getElementById('speechBubble');
+        const scoreEl = document.getElementById('score');
+        const timeEl = document.getElementById('time');
+        const startBtn = document.getElementById('startBtn');
+        const setupControls = document.getElementById('setupControls');
+        const dishSandwichBtn = document.getElementById('dishSandwichBtn');
+        const dishPopiahBtn = document.getElementById('dishPopiahBtn');
+        const dishLaksaBtn = document.getElementById('dishLaksaBtn');
+        const easyBtn = document.getElementById('easyBtn');
+        const mediumBtn = document.getElementById('mediumBtn');
+        const hardBtn = document.getElementById('hardBtn');
+        const endScreen = document.getElementById('endScreen');
+        const finalScore = document.getElementById('finalScore');
+        const restartBtn = document.getElementById('restartBtn');
+        const indicator = document.getElementById('indicator');
+
+        const correctWords = ['Excellent!', 'Nice!', 'Great!', 'Perfect!', 'Spot on!', 'Yummy!', 'Awesome!'];
+        const wrongWords = ['Oops!', 'Try again!', 'Not quite!', 'Uh oh!', 'Missed!'];
+        const completeWords = ['Order complete!', 'Delicious!', 'Fantastic!', 'Superb!', 'Great job!', 'Masterpiece!', 'Yum!'];
+
+        function getRandomWord(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        // Dish generation settings
+        const dishConfigs = {
+            'Sandwich': {
+                timerConfig: [120, 90, 70, 60, 50, 60],
+                emojis: {
+                    'Bread': '🍞', 'Sauce': '🥫', 'Ham': '🥓', 'Cheese': '🧀', 
+                    'Cucumber': '🥒', 'Lettuce': '🥬', 'Tomato': '🍅'
+                },
+                presetRecipes: [
+                    ['Bread', 'Sauce', 'Ham', 'Cheese', 'Cucumber', 'Lettuce', 'Tomato', 'Ham', 'Bread'],
+                    ['Cheese', 'Cucumber', 'Ham', 'Sauce', 'Bread', 'Cheese', 'Tomato', 'Lettuce'],
+                    ['Bread', 'Lettuce', 'Tomato', 'Sauce', 'Cucumber', 'Lettuce', 'Cheese', 'Ham', 'Tomato', 'Bread'],
+                    ['Ham', 'Cheese', 'Ham', 'Cucumber', 'Cheese', 'Tomato', 'Bread', 'Sauce', 'Lettuce'],
+                    ['Bread', 'Sauce', 'Cucumber', 'Tomato', 'Ham', 'Lettuce', 'Bread', 'Cheese', 'Ham', 'Bread'],
+                    ['Bread', 'Tomato', 'Cucumber', 'Cheese', 'Ham', 'Lettuce', 'Ham', 'Sauce', 'Cheese', 'Bread']
+                ]
+            },
+            'Laksa': {
+                timerConfig: [120, 90, 70, 60, 50, 60],
+                emojis: {
+                    'Egg': '🥚', 'Prawn': '🦐', 'Soup': '🥥', 'Noodles': '🍜', 
+                    'Spinach': '🥬', 'Garlic': '🧄', 'Chilli': '🌶️'
+                }
+            },
+            'Popiah': {
+                timerConfig: [120, 90, 70, 60, 50, 60],
+                emojis: {
+                    'Skin': '🌯', 'Cucumber': '🥒', 'Egg': '🥚', 'Chicken': '🍗', 
+                    'Turnip': '🥔', 'Prawn': '🦐', 'Lettuce': '🥬', 'Sauce': '🫓', 
+                    'Peanut': '🥜', 'Carrot': '🥕'
+                }
+            }
+        };
+
+        let emojis = {};
+        let availableIngredients = [];
+        let recipes = [];
+
+        let currentRecipeIndex = 0;
+        let currentItemIndex = 0;
+        let score = 0;
+        let timeLeft = 0;
+        let timer = null;
+        let isPlaying = false;
+        let selectedDish = 'Sandwich';
+        let difficultyDelay = 1.5; // defaults to hard
+        let currentDifficulty = 'hard';
+        let diffSelected = false;
+        let collisionSkipFrames = 0;
+        let preparingNext = false;
+        let gameState = 'START';
+        let waitingForHands = false; // between-ingredient hand check
+        let handCheckCallback = null; // called once hands are placed
+        
+        // Hand tracking state for up to 4 hands
+        let cursors = [];
+
+        function areHandsInCenter() {
+            if (cursors.length < 2) return false;
+            let leftHandIn = false;
+            let rightHandIn = false;
+            for (let c of cursors) {
+                // Left circle at 0.4, 0.55
+                let dxLeft = c.x - 0.4;
+                let dyLeft = c.y - 0.55;
+                if (Math.sqrt(dxLeft*dxLeft + dyLeft*dyLeft) < 0.15) leftHandIn = true;
+                
+                // Right circle at 0.6, 0.55
+                let dxRight = c.x - 0.6;
+                let dyRight = c.y - 0.55;
+                if (Math.sqrt(dxRight*dxRight + dyRight*dyRight) < 0.15) rightHandIn = true;
+            }
+            return leftHandIn && rightHandIn;
+        }
+
+        function fitCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        }
+        window.addEventListener('resize', fitCanvas);
+        fitCanvas();
+
+        function showIndicator(type, msg) {
+            indicator.className = `indicator ${type}`;
+            indicator.textContent = msg;
+            indicator.style.animation = 'none';
+            void indicator.offsetWidth; // trigger reflow
+            indicator.style.animation = 'popOut 1s forwards';
+        }
+
+        function renderRecipe() {
+            const recipe = recipes[currentRecipeIndex];
+            recipePanel.innerHTML = '';
+            recipe.items.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'ingredient-slot';
+                if (index < currentItemIndex) div.classList.add('done');
+                else if (index === currentItemIndex) div.classList.add('active');
+                div.textContent = emojis[item];
+                recipePanel.appendChild(div);
+            });
+            
+            speechBubble.innerHTML = `Catch the Next: ${emojis[recipe.items[currentItemIndex]]}`;
+        }
+
+        const corners = [
+            {x: 0.25, y: 0.35},
+            {x: 0.75, y: 0.35},
+            {x: 0.25, y: 0.75},
+            {x: 0.75, y: 0.75}
+        ];
+
+        function spawnBatch() {
+            if (!isPlaying) return false;
+
+            activeItems = [];
+            
+            const recipe = recipes[currentRecipeIndex];
+            if (!recipe || currentItemIndex >= recipe.items.length) return false;
+            
+            const correctItem = recipe.items[currentItemIndex];
+            
+            // Randomly assign one corner for the correct item
+            let correctCornerIndex = Math.floor(Math.random() * 4);
+            
+            for (let i = 0; i < 4; i++) {
+                let type = correctItem;
+                if (i !== correctCornerIndex) {
+                    do {
+                        type = availableIngredients[Math.floor(Math.random() * availableIngredients.length)];
+                    } while (type === correctItem);
+                }
+
+                activeItems.push({
+                    type: type,
+                    emoji: emojis[type],
+                    x: corners[i].x,
+                    y: corners[i].y,
+                    life: difficultyDelay, 
+                    maxLife: difficultyDelay
+                });
+            }
+
+            renderRecipe();
+            return true;
+        }
+
+        function checkCollision() {
+            if (!isPlaying) return;
+            if (collisionSkipFrames > 0) {
+                collisionSkipFrames--;
+                return;
+            }
+
+            const recipe = recipes[currentRecipeIndex];
+            let correctItemIndex = -1;
+            let firstWrongIndex = -1;
+
+            // First, check for correct item
+            for (let i = 0; i < activeItems.length; i++) {
+                const item = activeItems[i];
+                let collected = false;
+                
+                for (let c of cursors) {
+                    const dx = item.x - c.x;
+                    const dy = item.y - c.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if (dist < 0.10) {
+                        collected = true;
+                        break;
+                    }
+                }
+
+                if (collected) {
+                    if (item.type === recipe.items[currentItemIndex]) {
+                        correctItemIndex = i;
+                        break; // Prioritize correct
+                    } else if (firstWrongIndex === -1) {
+                        firstWrongIndex = i;
+                    }
+                }
+            }
+
+            // Process correct if found, else wrong
+            if (correctItemIndex !== -1) {
+                const item = activeItems[correctItemIndex];
+                // Correct!
+                showIndicator('right', getRandomWord(correctWords));
+                collisionSkipFrames = 10;
+                score += 100;
+                currentItemIndex++;
+                
+                if (currentItemIndex >= recipe.items.length) {
+                    // Completed recipe: show hand-check then go to next recipe
+                    currentRecipeIndex++;
+                    if (currentRecipeIndex >= recipes.length) {
+                        endGame();
+                        return;
+                    }
+                    showIndicator('right', getRandomWord(completeWords) + ' 🌟');
+                    preparingNext = true;
+                    activeItems = [];
+                    // Hand check before starting new recipe
+                    waitingForHands = true;
+                    handCheckCallback = () => {
+                        preparingNext = false;
+                        startRecipe(currentRecipeIndex);
+                    };
+                } else {
+                    activeItems = [];
+                    // Hand check before spawning next ingredient
+                    waitingForHands = true;
+                    handCheckCallback = () => {
+                        renderRecipe();
+                        spawnBatch();
+                    };
+                }
+            } else if (firstWrongIndex !== -1) {
+                // Wrong!
+                showIndicator('wrong', getRandomWord(wrongWords));
+                score -= 50;
+                activeItems.splice(firstWrongIndex, 1);
+            }
+            
+            if (correctItemIndex !== -1 || firstWrongIndex !== -1) {
+                scoreEl.textContent = score;
+            }
+        }
+
+        function startRecipe(index) {
+            const recipe = recipes[index];
+            currentItemIndex = 0;
+            timeLeft = recipe.time;
+            timeEl.textContent = timeLeft;
+            renderRecipe();
+            spawnBatch();
+            
+            clearInterval(timer);
+            timer = setInterval(() => {
+                if(!isPlaying) return;
+                timeLeft--;
+                timeEl.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    showIndicator('wrong', 'TIME UP! ⏰');
+                    currentRecipeIndex++;
+                    if (currentRecipeIndex >= recipes.length) {
+                        endGame();
+                    } else {
+                        startRecipe(currentRecipeIndex);
+                    }
+                }
+            }, 1000);
+        }
+
+        let cameraStarted = false;
+        let cam = null;
+        async function initCamera() {
+            const hands = new Hands({
+                locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+            });
+
+            hands.setOptions({
+                maxNumHands: 4,  // Allow detecting 4 hands as requested!
+                modelComplexity: 1,
+                minDetectionConfidence: 0.6,
+                minTrackingConfidence: 0.6
+            });
+
+            hands.onResults((results) => {
+                cursors = [];
+                if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                    for (let i = 0; i < results.multiHandLandmarks.length; i++) {
+                        const landmarks = results.multiHandLandmarks[i];
+                        const indexTip = landmarks[8];
+                        cursors.push({
+                            x: 1.0 - indexTip.x, // flip horizontally
+                            y: indexTip.y
+                        });
+                    }
+                }
+            });
+
+            cam = new Camera(video, {
+                onFrame: async () => {
+                    await hands.send({ image: video });
+                },
+                width: 640,
+                height: 480
+            });
+            await cam.start();
+        }
+
+        function generateRecipes(dishType) {
+            const config = dishConfigs[dishType];
+            emojis = config.emojis;
+            availableIngredients = Object.keys(emojis);
+            recipes = [];
+            
+            if (dishType === 'Sandwich') {
+                for (let i = 0; i < 6; i++) {
+                    recipes.push({
+                        id: i + 1,
+                        time: config.timerConfig[i],
+                        items: config.presetRecipes[i]
+                    });
+                }
+            } else {
+                const lengths = [9, 8, 10, 9, 10, 10];
+                for (let i = 0; i < 6; i++) {
+                    let items = [];
+                    for (let j = 0; j < lengths[i]; j++) {
+                        const randomIng = availableIngredients[Math.floor(Math.random() * availableIngredients.length)];
+                        items.push(randomIng);
+                    }
+                    recipes.push({
+                        id: i + 1,
+                        time: config.timerConfig[i],
+                        items: items
+                    });
+                }
+            }
+        }
+
+        async function startGame() {
+            startBtn.disabled = true;
+            startBtn.innerText = "Loading Camera...";
+            try {
+                if (!cameraStarted) {
+                    await initCamera();
+                    cameraStarted = true;
+                }
+                
+                generateRecipes(selectedDish);
+                
+                score = 0;
+                scoreEl.textContent = 0;
+                currentRecipeIndex = 0;
+                activeItems = [];
+                isPlaying = false;
+                gameState = 'CALIBRATING';
+                document.getElementById('startScreen').style.display = 'none';
+                endScreen.style.display = 'none';
+            } catch (e) {
+                console.error(e);
+                alert("Camera failed to start: " + e.message + "\nTry running on a local server or localhost.");
+                startBtn.disabled = false;
+                startBtn.innerText = "▶️ Start Order";
+            }
+        }
+
+        function endGame() {
+            isPlaying = false;
+            gameState = 'START';
+            document.body.classList.remove('gaming-mode');
+            clearInterval(timer);
+            finalScore.textContent = score;
+            endScreen.style.display = 'flex';
+        }
+
+        function drawHandCircles(promptText) {
+            // Draw the two placement circles
+            ctx.globalAlpha = 0.45;
+            ctx.fillStyle = 'skyblue';
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = 'white';
+            // Left circle
+            ctx.beginPath();
+            ctx.arc(0.4 * canvas.width, 0.55 * canvas.height, 90, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            // Right circle
+            ctx.beginPath();
+            ctx.arc(0.6 * canvas.width, 0.55 * canvas.height, 90, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.globalAlpha = 1.0;
+
+            // Highlight circles green if hand is inside
+            const leftIn = cursors.some(c => Math.hypot(c.x - 0.4, c.y - 0.55) < 0.15);
+            const rightIn = cursors.some(c => Math.hypot(c.x - 0.6, c.y - 0.55) < 0.15);
+            if (leftIn) {
+                ctx.globalAlpha = 0.5;
+                ctx.fillStyle = '#4ade80';
+                ctx.beginPath();
+                ctx.arc(0.4 * canvas.width, 0.55 * canvas.height, 90, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+            }
+            if (rightIn) {
+                ctx.globalAlpha = 0.5;
+                ctx.fillStyle = '#4ade80';
+                ctx.beginPath();
+                ctx.arc(0.6 * canvas.width, 0.55 * canvas.height, 90, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+            }
+
+            // Prompt text
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 38px "Chewy", "Fredoka", Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = 'black';
+            ctx.shadowBlur = 6;
+            ctx.shadowOffsetX = 2;
+            ctx.shadowOffsetY = 2;
+            ctx.fillText(promptText, canvas.width / 2, canvas.height * 0.28);
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+        }
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (gameState === 'CALIBRATING') {
+                drawHandCircles('Place both hands in the circles to start!');
+
+                if (areHandsInCenter()) {
+                    gameState = 'PLAYING';
+                    isPlaying = true;
+                    document.body.classList.add('gaming-mode');
+                    startBtn.innerText = "▶️ Start Order";
+                    startBtn.disabled = false;
+                    startRecipe(0);
+                }
+            }
+
+            // Between-ingredient hand check
+            if (isPlaying && waitingForHands) {
+                drawHandCircles('Place both hands in the circles for the next ingredient!');
+
+                // Draw all active cursors
+                for (let c of cursors) {
+                    ctx.beginPath();
+                    ctx.arc(c.x * canvas.width, c.y * canvas.height, 30, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255, 107, 107, 0.5)';
+                    ctx.fill();
+                    ctx.lineWidth = 4;
+                    ctx.strokeStyle = '#fff';
+                    ctx.stroke();
+                }
+
+                if (areHandsInCenter()) {
+                    waitingForHands = false;
+                    if (handCheckCallback) {
+                        const cb = handCheckCallback;
+                        handCheckCallback = null;
+                        cb();
+                    }
+                }
+
+                requestAnimationFrame(gameLoop);
+                return;
+            }
+
+            if (isPlaying) {
+                let itemsAlive = 0;
+
+                // Render items
+                ctx.font = '80px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                for (let i = activeItems.length - 1; i >= 0; i--) {
+                    let item = activeItems[i];
+                    if (currentDifficulty !== 'easy') {
+                        item.life -= 1/60; // Approximate 60 FPS
+                    }
+
+                    if (currentDifficulty !== 'easy' && item.life <= 0) {
+                        activeItems.splice(i, 1);
+                        continue;
+                    }
+
+                    itemsAlive++;
+
+                    const x = item.x * canvas.width;
+                    const y = item.y * canvas.height;
+                    
+                    // Simple pop-in, pop-out effect (skip for easy mode to keep items visible)
+                    if (currentDifficulty === 'easy') {
+                        ctx.globalAlpha = 1.0;
+                    } else {
+                        ctx.globalAlpha = Math.min(1, item.life * 4, (item.maxLife - item.life) * 10);
+                    }
+                    
+                    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                    ctx.fillText(item.emoji, x, y + 10);
+                    ctx.fillStyle = '#fff';
+                    ctx.fillText(item.emoji, x, y);
+                    
+                    ctx.globalAlpha = 1.0;
+                }
+                
+                if (itemsAlive === 0 && !preparingNext) {
+                    spawnBatch();
+                } else {
+                    checkCollision();
+                }
+            }
+
+            // Draw all active cursors (hands)
+            for (let c of cursors) {
+                ctx.beginPath();
+                ctx.arc(c.x * canvas.width, c.y * canvas.height, 30, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 107, 107, 0.5)';
+                ctx.fill();
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = '#fff';
+                ctx.stroke();
+            }
+
+            // Draw translucent blue circles indicating hand placement zones during calibration
+            // (now handled by drawHandCircles() call above for CALIBRATING state)
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // MediaPipe Initialization is now encapsulated in initCamera() called during startGame!
+
+        function checkStartReady() {
+            if (diffSelected) {
+                startBtn.style.display = 'inline-block';
+            }
+        }
+
+        function setDish(dish) {
+            selectedDish = dish;
+            dishSandwichBtn.style.opacity = dish === 'Sandwich' ? '1' : '0.4';
+            dishPopiahBtn.style.opacity = dish === 'Popiah' ? '1' : '0.4';
+            dishLaksaBtn.style.opacity = dish === 'Laksa' ? '1' : '0.4';
+            checkStartReady();
+        }
+
+        function setDifficulty(mode, life) {
+            difficultyDelay = life;
+            currentDifficulty = mode;
+            diffSelected = true;
+            easyBtn.style.opacity = mode === 'easy' ? '1' : '0.4';
+            mediumBtn.style.opacity = mode === 'medium' ? '1' : '0.4';
+            hardBtn.style.opacity = mode === 'hard' ? '1' : '0.4';
+            checkStartReady();
+        }
+
+        dishSandwichBtn.addEventListener('click', () => setDish('Sandwich'));
+        dishPopiahBtn.addEventListener('click', () => setDish('Popiah'));
+        dishLaksaBtn.addEventListener('click', () => setDish('Laksa'));
+
+        easyBtn.addEventListener('click', () => setDifficulty('easy', 3.0));
+        mediumBtn.addEventListener('click', () => setDifficulty('medium', 2.0));
+        hardBtn.addEventListener('click', () => setDifficulty('hard', 1.5));
+
+        // Initialize setup state
+        setDish('Sandwich');
+        easyBtn.style.opacity = '0.4';
+        mediumBtn.style.opacity = '0.4';
+        hardBtn.style.opacity = '0.4';
+
+        startBtn.addEventListener('click', startGame);
+        restartBtn.addEventListener('click', () => {
+            endScreen.style.display = 'none';
+            document.getElementById('startScreen').style.display = 'flex';
+        });
+
+        requestAnimationFrame(gameLoop);
+    </script>
+</body>
+</html>

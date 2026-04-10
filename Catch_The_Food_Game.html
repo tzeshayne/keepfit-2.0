@@ -1,0 +1,1161 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>🎮 Catch the Healthy Food!</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap');
+
+        :root {
+            --bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --panel: #ffffff;
+            --txt: #4a5568;
+            --accent: #ff6b9d;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --danger: #f87171;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            background: var(--bg);
+            color: var(--txt);
+            font-family: 'Fredoka', system-ui, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Floating background elements */
+        .bg-decoration {
+            position: fixed;
+            pointer-events: none;
+            opacity: 0.15;
+            font-size: 60px;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-20px) rotate(10deg);
+            }
+        }
+
+        .wrap {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 24px;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin: 0 0 24px;
+            text-align: center;
+            color: white;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 860px) {
+            .grid {
+                grid-template-columns: 2fr 1fr;
+                align-items: start;
+            }
+        }
+
+        .stage {
+            position: relative;
+            border-radius: 32px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 8px rgba(255, 255, 255, 0.1);
+            aspect-ratio: 16/9;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stage:hover {
+            transform: scale(1.02);
+        }
+
+        video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+
+        canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .panel {
+            background: var(--panel);
+            border-radius: 32px;
+            padding: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 107, 157, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .panel.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.95);
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: 0;
+            padding: 18px 28px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+            font-family: 'Fredoka', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button:hover:not(:disabled)::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.5);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0) scale(1);
+        }
+
+        button.secondary {
+            background: linear-gradient(135deg, #a0aec0 0%, #718096 100%);
+            box-shadow: 0 8px 24px rgba(160, 174, 192, 0.3);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Difficulty mode buttons */
+        .mode-select {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .mode-btn {
+            padding: 24px 28px;
+            font-size: 22px;
+            font-weight: 700;
+            border-radius: 24px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .mode-btn:hover::after {
+            opacity: 1;
+        }
+
+        .mode-btn.easy {
+            background: linear-gradient(135deg, #6ee7b7 0%, #34d399 100%);
+            box-shadow: 0 12px 32px rgba(52, 211, 153, 0.4);
+        }
+
+        .mode-btn.easy:hover {
+            box-shadow: 0 16px 40px rgba(52, 211, 153, 0.5);
+        }
+
+        .mode-btn.medium {
+            background: linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%);
+            box-shadow: 0 12px 32px rgba(251, 191, 36, 0.4);
+        }
+
+        .mode-btn.medium:hover {
+            box-shadow: 0 16px 40px rgba(251, 191, 36, 0.5);
+        }
+
+        .mode-btn.hard {
+            background: linear-gradient(135deg, #fca5a5 0%, #f87171 100%);
+            box-shadow: 0 12px 32px rgba(248, 113, 113, 0.4);
+        }
+
+        .mode-btn.hard:hover {
+            box-shadow: 0 16px 40px rgba(248, 113, 113, 0.5);
+        }
+
+        .mode-icon {
+            font-size: 42px;
+            display: block;
+            margin-bottom: 8px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        .stat {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            margin: 16px 0 0;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            padding: 14px 18px;
+            border-radius: 999px;
+            color: var(--txt);
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s ease;
+        }
+
+        .pill:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .pill b {
+            background: white;
+            padding: 6px 12px;
+            border-radius: 999px;
+            min-width: 40px;
+            text-align: center;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+        }
+
+        .small {
+            font-size: 15px;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        .notice {
+            margin-top: 16px;
+            padding: 16px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+            box-shadow: 0 4px 12px rgba(253, 230, 138, 0.3);
+        }
+
+        .notice.privacy {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+            box-shadow: 0 4px 12px rgba(167, 243, 208, 0.3);
+        }
+
+        .ok {
+            color: #059669;
+            font-weight: 700;
+        }
+
+        .warn {
+            color: #d97706;
+            font-weight: 700;
+        }
+
+        .mode-indicator {
+            text-align: center;
+            padding: 16px;
+            border-radius: 20px;
+            margin-bottom: 16px;
+            font-weight: 700;
+            font-size: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .mode-indicator.easy {
+            background: linear-gradient(135deg, #6ee7b7 0%, #34d399 100%);
+            color: white;
+        }
+
+        .mode-indicator.medium {
+            background: linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%);
+            color: white;
+        }
+
+        .mode-indicator.hard {
+            background: linear-gradient(135deg, #fca5a5 0%, #f87171 100%);
+            color: white;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            text-align: center;
+            margin: 20px 0 12px;
+            color: #374151;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .section-title::before,
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #d1d5db, transparent);
+            border-radius: 999px;
+            max-width: 60px;
+        }
+
+        /* Celebration particles */
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            font-size: 24px;
+            animation: particle-float 1.5s ease-out forwards;
+            z-index: 9999;
+        }
+
+        @keyframes particle-float {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1) rotate(0deg);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-150px) scale(1.5) rotate(360deg);
+            }
+        }
+
+        /* Pulse animation for score updates */
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+        .pulse {
+            animation: pulse 0.3s ease;
+        }
+
+        /* Sparkle effect */
+        .sparkle {
+            position: fixed;
+            pointer-events: none;
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            animation: sparkle 1s ease-out forwards;
+            z-index: 9999;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
+        }
+
+        @keyframes sparkle {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(0);
+            }
+
+            50% {
+                opacity: 1;
+                transform: translate(var(--tx), var(--ty)) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(calc(var(--tx) * 2), calc(var(--ty) * 2)) scale(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Background decorations -->
+    <div class="bg-decoration" style="top: 10%; left: 5%; animation-delay: 0s;">🍎</div>
+    <div class="bg-decoration" style="top: 60%; right: 8%; animation-delay: 1s;">🥦</div>
+    <div class="bg-decoration" style="top: 30%; right: 15%; animation-delay: 2s;">🥕</div>
+    <div class="bg-decoration" style="bottom: 15%; left: 12%; animation-delay: 1.5s;">🍇</div>
+
+    <div class="wrap">
+        <h1>🎮 Catch the Healthy Food!</h1>
+
+        <div class="grid">
+            <div class="stage">
+                <video id="video" playsinline muted></video>
+                <canvas id="overlay"></canvas>
+            </div>
+
+            <div class="panel" id="panel">
+                <div class="row">
+                    <button id="startBtn">🎥 Start Camera</button>
+                </div>
+
+                <!-- Mode selection (hidden initially) -->
+                <div id="modeSelect" style="display:none;">
+                    <div class="section-title">Settings ⚙️</div>
+                    <div class="row" style="justify-content: center; margin-bottom: 20px; gap: 20px;">
+                        <div style="text-align: center;">
+                            <p class="small" style="margin-bottom: 8px; font-weight: bold;">Theme</p>
+                            <div class="row">
+                                <button id="themeNormalBtn" style="padding: 10px 20px; font-size: 14px;">Normal Mode
+                                    🧺</button>
+                                <button id="themeCnyBtn" class="secondary"
+                                    style="padding: 10px 20px; font-size: 14px;">CNY Mode
+                                    🧧</button>
+                            </div>
+                        </div>
+                        <div style="text-align: center;">
+                            <p class="small" style="margin-bottom: 8px; font-weight: bold;">Hands</p>
+                            <div class="row">
+                                <button id="handsOneBtn" style="padding: 10px 20px; font-size: 14px;">One Hand</button>
+                                <button id="handsTwoBtn" class="secondary"
+                                    style="padding: 10px 20px; font-size: 14px;">Two
+                                    Hands</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-title">Choose Your Level! 🎯</div>
+                    <div class="mode-select">
+                        <button class="mode-btn easy" id="easyBtn">
+                            <span class="mode-icon">🐢</span>
+                            EASY MODE<br>
+                            <span style="font-size: 16px; font-weight: 400; opacity: 0.9;">Slow & Relaxed</span>
+                        </button>
+                        <button class="mode-btn medium" id="mediumBtn">
+                            <span class="mode-icon">🐰</span>
+                            MEDIUM MODE<br>
+                            <span style="font-size: 16px; font-weight: 400; opacity: 0.9;">Balanced Fun</span>
+                        </button>
+                        <button class="mode-btn hard" id="hardBtn">
+                            <span class="mode-icon">🚀</span>
+                            HARD MODE<br>
+                            <span style="font-size: 16px; font-weight: 400; opacity: 0.9;">Super Fast!</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Game controls (hidden initially) -->
+                <div id="gameControls" style="display:none;">
+                    <div class="mode-indicator" id="modeIndicator"></div>
+                    <div class="row">
+                        <button id="pauseBtn" class="secondary">⏸️ Pause</button>
+                        <button id="resetBtn" class="secondary">🔄 Reset</button>
+                    </div>
+
+                    <div class="stat">
+                        <div class="pill" id="healthyLabel">✅ Healthy</div>
+                        <div class="pill"><b id="healthy">0</b></div>
+                        <div class="pill" id="junkLabel">🍩 Junk</div>
+                        <div class="pill"><b id="junk">0</b></div>
+                        <div class="pill">⭐ Score</div>
+                        <div class="pill"><b id="score">0</b></div>
+                        <div class="pill">⏱️ Time</div>
+                        <div class="pill"><b id="time">0</b>s</div>
+                    </div>
+                </div>
+
+                <!-- Instructions -->
+                <div id="instructions">
+                    <p class="small" style="margin-top:16px; text-align: center;" id="instrText">
+                        <strong>How to Play:</strong> Your <b>finger</b> is the basket! 🧺<br>
+                        Catch healthy food 🥦🍎, avoid junk food 🍟🍩
+                    </p>
+
+                    <div class="notice privacy">
+                        <div><b class="ok">🔒 Privacy First!</b></div>
+                        <div class="small" style="margin-top:6px;">
+                            Your video stays in your browser. Nothing is uploaded to the internet!
+                        </div>
+                    </div>
+
+                    <div class="notice">
+                        <div><b class="warn">💡 Tips:</b></div>
+                        <div class="small" style="margin-top:6px;">
+                            • Good lighting helps the camera see your hand<br>
+                            • Keep your hand in view<br>
+                            • Press <strong>Space</strong> to pause/resume
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+
+    <script>
+        const video = document.getElementById("video");
+        const canvas = document.getElementById("overlay");
+        const ctx = canvas.getContext("2d");
+        const startBtn = document.getElementById("startBtn");
+        const pauseBtn = document.getElementById("pauseBtn");
+        const resetBtn = document.getElementById("resetBtn");
+        const healthyEl = document.getElementById("healthy");
+        const junkEl = document.getElementById("junk");
+        const scoreEl = document.getElementById("score");
+        const timeEl = document.getElementById("time");
+        const panel = document.getElementById("panel");
+        const modeSelect = document.getElementById("modeSelect");
+        const gameControls = document.getElementById("gameControls");
+        const instructions = document.getElementById("instructions");
+        const modeIndicator = document.getElementById("modeIndicator");
+        const easyBtn = document.getElementById("easyBtn");
+        const mediumBtn = document.getElementById("mediumBtn");
+        const hardBtn = document.getElementById("hardBtn");
+
+        const themeNormalBtn = document.getElementById("themeNormalBtn");
+        const themeCnyBtn = document.getElementById("themeCnyBtn");
+        const handsOneBtn = document.getElementById("handsOneBtn");
+        const handsTwoBtn = document.getElementById("handsTwoBtn");
+        const healthyLabel = document.getElementById("healthyLabel");
+        const junkLabel = document.getElementById("junkLabel");
+        const instrText = document.getElementById("instrText");
+
+        function fitCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = Math.floor(rect.width * dpr);
+            canvas.height = Math.floor(rect.height * dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        window.addEventListener("resize", fitCanvas);
+
+        let running = false;
+        let cameraStarted = false;
+        let currentMode = null;
+        let currentTheme = 'normal'; // 'normal' | 'cny'
+        let handMode = 'one'; // 'one' | 'two'
+        let t0 = null;
+        let elapsed = 0;
+        let healthyCaught = 0;
+        let junkHit = 0;
+        let score = 0;
+        let prevScore = 0;
+        let fingers = [{ x: 0.5, y: 0.7, ok: false }, { x: 0.5, y: 0.7, ok: false }];
+
+        const themeConfigs = {
+            normal: {
+                healthy: ["🥦", "🍎", "🥕", "🥗", "🍇", "🌽"],
+                junk: ["🍩", "🍟", "🍔", "🍕", "🧁", "🥤", "💣"],
+                basket: "🧺",
+                healthyTitle: "✅ Healthy",
+                junkTitle: "🍩 Junk",
+                instr: "<strong>How to Play:</strong> Your <b>finger</b> is the basket! 🧺<br>Catch healthy food 🥦🍎, avoid junk food 🍟🍩"
+            },
+            cny: {
+                healthy: ["🧧", "💵"],
+                junk: ["💣"],
+                basket: "🐴",
+                healthyTitle: "🧧 Luck",
+                junkTitle: "💣 Bomb",
+                instr: "<strong>CNY Mode:</strong> Your <b>finger</b> is the 🐴!<br>Catch 🧧 and 💵, avoid 💣"
+            }
+        };
+
+        const items = [];
+
+        // Celebratory emojis
+        const celebrationEmojis = ["⭐", "✨", "🎉", "🎊", "💫", "🌟", "🎈", "🏆"];
+
+        // Difficulty configurations
+        const difficulties = {
+            easy: {
+                name: "🐢 EASY MODE",
+                maxItems: 5,
+                spawnEveryMs: 900,
+                fallSpeedMin: 60,
+                fallSpeedMax: 120,
+                catchRadius: 130,
+                missPenalty: 0,
+                junkPenalty: 2,
+                healthyReward: 2,
+                gameLengthSec: 45
+            },
+            medium: {
+                name: "🐰 MEDIUM MODE",
+                maxItems: 8,
+                spawnEveryMs: 650,
+                fallSpeedMin: 90,
+                fallSpeedMax: 200,
+                catchRadius: 110,
+                missPenalty: 0,
+                junkPenalty: 3,
+                healthyReward: 2,
+                gameLengthSec: 30
+            },
+            hard: {
+                name: "🚀 HARD MODE",
+                maxItems: 12,
+                spawnEveryMs: 450,
+                fallSpeedMin: 120,
+                fallSpeedMax: 280,
+                catchRadius: 90,
+                missPenalty: 1,
+                junkPenalty: 4,
+                healthyReward: 3,
+                gameLengthSec: 25
+            }
+        };
+
+        let config = difficulties.medium;
+
+        function rand(a, b) { return a + Math.random() * (b - a); }
+        function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+        function updateThemeUI() {
+            const cfg = themeConfigs[currentTheme];
+            healthyLabel.textContent = cfg.healthyTitle;
+            junkLabel.textContent = cfg.junkTitle;
+            instrText.innerHTML = cfg.instr;
+
+            if (currentTheme === 'normal') {
+                themeNormalBtn.classList.remove('secondary');
+                themeCnyBtn.classList.add('secondary');
+            } else {
+                themeNormalBtn.classList.add('secondary');
+                themeCnyBtn.classList.remove('secondary');
+            }
+        }
+
+        function updateHandModeUI() {
+            if (handMode === 'one') {
+                handsOneBtn.classList.remove('secondary');
+                handsTwoBtn.classList.add('secondary');
+            } else {
+                handsOneBtn.classList.add('secondary');
+                handsTwoBtn.classList.remove('secondary');
+            }
+        }
+
+        // Celebration effects
+        function createParticle(x, y, emoji) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.textContent = emoji;
+            particle.style.left = x + 'px';
+            particle.style.top = y + 'px';
+            document.body.appendChild(particle);
+            setTimeout(() => particle.remove(), 1500);
+        }
+
+        function createSparkles(x, y, count = 8) {
+            for (let i = 0; i < count; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                const angle = (Math.PI * 2 * i) / count;
+                const distance = 50 + Math.random() * 30;
+                sparkle.style.left = x + 'px';
+                sparkle.style.top = y + 'px';
+                sparkle.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+                sparkle.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+                document.body.appendChild(sparkle);
+                setTimeout(() => sparkle.remove(), 1000);
+            }
+        }
+
+        function celebrate(x, y, isHealthy) {
+            if (isHealthy) {
+                // Sparkles for healthy food
+                createSparkles(x, y, 6);
+                // Random celebration emoji
+                createParticle(x, y, pick(celebrationEmojis));
+            }
+
+            // Pulse the score
+            scoreEl.parentElement.classList.add('pulse');
+            setTimeout(() => scoreEl.parentElement.classList.remove('pulse'), 300);
+        }
+
+        function expandStage() {
+            const stage = document.querySelector('.stage');
+            stage.style.position = 'fixed';
+            stage.style.top = '0';
+            stage.style.left = '0';
+            stage.style.width = '100vw';
+            stage.style.height = '100vh';
+            stage.style.zIndex = '10';
+            stage.style.borderRadius = '0';
+            stage.style.boxShadow = 'none';
+            fitCanvas();
+            panel.style.position = 'fixed';
+            panel.style.right = '16px';
+            panel.style.top = '16px';
+            panel.style.zIndex = '11';
+        }
+
+        function revertStage() {
+            const stage = document.querySelector('.stage');
+            stage.style.position = 'relative';
+            stage.style.top = '';
+            stage.style.left = '';
+            stage.style.width = '';
+            stage.style.height = '';
+            stage.style.zIndex = '';
+            stage.style.borderRadius = '32px';
+            stage.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 8px rgba(255, 255, 255, 0.1)';
+            fitCanvas();
+            panel.style.position = '';
+            panel.style.right = '';
+            panel.style.top = '';
+            panel.style.zIndex = '';
+        }
+
+        function resetGame() {
+            running = false;
+            t0 = null;
+            elapsed = 0;
+            healthyCaught = 0;
+            junkHit = 0;
+            score = 0;
+            prevScore = 0;
+            items.length = 0;
+            updateHUD();
+            revertStage();
+
+            modeSelect.style.display = 'block';
+            gameControls.style.display = 'none';
+            panel.classList.remove('hidden');
+
+            draw();
+        }
+
+        function updateHUD() {
+            healthyEl.textContent = healthyCaught;
+            junkEl.textContent = junkHit;
+            scoreEl.textContent = score;
+            timeEl.textContent = Math.min(config.gameLengthSec, Math.floor(elapsed));
+        }
+
+        let lastSpawn = 0;
+        function spawnItem() {
+            const isHealthy = Math.random() < 0.65;
+            const themeSet = themeConfigs[currentTheme];
+            const emoji = isHealthy ? pick(themeSet.healthy) : pick(themeSet.junk);
+            const activeFingers = fingers.filter(f => f.ok);
+            const avgX = activeFingers.length > 0 ? activeFingers.reduce((sum, f) => sum + f.x, 0) / activeFingers.length : 0.5;
+            const range = 0.4;
+            const minX = Math.max(0, avgX - range / 2);
+            const maxX = Math.min(1, avgX + range / 2);
+            items.push({
+                x: rand(minX, maxX),
+                y: -0.15,
+                r: rand(45, 70),
+                v: rand(config.fallSpeedMin, config.fallSpeedMax),
+                healthy: isHealthy,
+                emoji
+            });
+            while (items.length > config.maxItems) items.shift();
+        }
+
+        function checkCatch(item, stageW, stageH) {
+            for (const f of fingers) {
+                if (!f.ok) continue;
+                const ix = item.x * stageW;
+                const iy = item.y * stageH;
+                const fx = f.x * stageW;
+                const fy = f.y * stageH;
+                const dx = ix - fx;
+                const dy = iy - fy;
+                const dist = Math.hypot(dx, dy);
+                if (dist <= config.catchRadius) return { caught: true, x: fx, y: fy };
+            }
+            return { caught: false };
+        }
+
+        function draw() {
+            const rect = canvas.getBoundingClientRect();
+            const W = rect.width;
+            const H = rect.height;
+            ctx.clearRect(0, 0, W, H);
+
+            // Draw basket circles with glow
+            const basketEmoji = themeConfigs[currentTheme].basket;
+            for (const f of fingers) {
+                if (f.ok) {
+                    const fx = f.x * W;
+                    const fy = f.y * H;
+
+                    // Glow effect
+                    ctx.beginPath();
+                    ctx.arc(fx, fy, config.catchRadius + 10, 0, Math.PI * 2);
+                    ctx.strokeStyle = currentTheme === 'normal' ? "rgba(110,231,183,0.3)" : "rgba(248,113,113,0.3)";
+                    ctx.lineWidth = 20;
+                    ctx.stroke();
+
+                    // Main circle
+                    ctx.beginPath();
+                    ctx.arc(fx, fy, config.catchRadius, 0, Math.PI * 2);
+                    ctx.lineWidth = 8;
+                    ctx.strokeStyle = currentTheme === 'normal' ? "rgba(110,231,183,0.9)" : "rgba(248,113,113,0.9)";
+                    ctx.stroke();
+
+                    // Basket emoji
+                    ctx.font = "70px system-ui, Apple Color Emoji, Segoe UI Emoji";
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.fillText(basketEmoji, fx, fy);
+                }
+            }
+
+            // Draw falling items
+            for (const it of items) {
+                const x = it.x * W;
+                const y = it.y * H;
+                ctx.font = `${Math.floor(it.r * 1.6)}px system-ui, Apple Color Emoji, Segoe UI Emoji`;
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(it.emoji, x, y);
+            }
+
+            // Status text
+            ctx.font = "18px Fredoka, system-ui";
+            ctx.textAlign = "left";
+            ctx.textBaseline = "top";
+            ctx.fillStyle = "white";
+            ctx.shadowColor = "rgba(0,0,0,0.5)";
+            ctx.shadowBlur = 8;
+            const detected = fingers.filter(f => f.ok).length;
+            const hint = detected > 0 ? `👋 Hands detected: ${detected} ✅` : "👋 Show your hand!";
+            ctx.fillText(hint, 15, 15);
+            ctx.shadowBlur = 0;
+
+            if (!running && cameraStarted && currentMode) {
+                ctx.fillStyle = "rgba(0,0,0,0.4)";
+                ctx.fillRect(0, 0, W, H);
+                ctx.fillStyle = "white";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.font = "bold 28px Fredoka, system-ui";
+                ctx.shadowColor = "rgba(0,0,0,0.8)";
+                ctx.shadowBlur = 12;
+                ctx.fillText("🎉 Game Over! 🎉", W / 2, H / 2 - 30);
+                ctx.font = "20px Fredoka, system-ui";
+                ctx.fillText("Check your score →", W / 2, H / 2 + 10);
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        let lastFrame = 0;
+        function loop(ts) {
+            requestAnimationFrame(loop);
+            const rect = canvas.getBoundingClientRect();
+            const W = rect.width;
+            const H = rect.height;
+
+            if (!running) {
+                draw();
+                return;
+            }
+
+            if (!lastFrame) lastFrame = ts;
+            const dt = (ts - lastFrame) / 1000;
+            lastFrame = ts;
+
+            if (!t0) t0 = ts;
+            elapsed = (ts - t0) / 1000;
+
+            if (elapsed >= config.gameLengthSec) {
+                running = false;
+                pauseBtn.disabled = true;
+                revertStage();
+                panel.classList.remove('hidden');
+
+                // Big celebration at end
+                setTimeout(() => {
+                    for (let i = 0; i < 20; i++) {
+                        setTimeout(() => {
+                            const x = Math.random() * window.innerWidth;
+                            const y = Math.random() * window.innerHeight;
+                            createParticle(x, y, pick(celebrationEmojis));
+                        }, i * 100);
+                    }
+                }, 300);
+
+                updateHUD();
+                draw();
+                return;
+            }
+
+            const ms = ts;
+            if (fingers.some(f => f.ok) && ms - lastSpawn >= config.spawnEveryMs) {
+                lastSpawn = ms;
+                spawnItem();
+            }
+
+            for (let i = items.length - 1; i >= 0; i--) {
+                const it = items[i];
+                it.y += (it.v * dt) / H;
+
+                const catchResult = checkCatch(it, W, H);
+                if (catchResult.caught) {
+                    // Convert canvas coordinates to screen coordinates
+                    const canvasRect = canvas.getBoundingClientRect();
+                    const screenX = canvasRect.left + catchResult.x;
+                    const screenY = canvasRect.top + catchResult.y;
+
+                    if (it.healthy) {
+                        healthyCaught++;
+                        score += config.healthyReward;
+                        celebrate(screenX, screenY, true);
+                    } else {
+                        junkHit++;
+                        score -= config.junkPenalty;
+                        celebrate(screenX, screenY, false);
+                    }
+                    items.splice(i, 1);
+                    continue;
+                }
+
+                if (it.y > 1.15) {
+                    if (it.healthy) {
+                        score -= config.missPenalty;
+                    }
+                    items.splice(i, 1);
+                }
+            }
+
+            updateHUD();
+            draw();
+        }
+        requestAnimationFrame(loop);
+
+        const hands = new Hands({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+        });
+        hands.setOptions({
+            maxNumHands: 2,
+            modelComplexity: 1,
+            minDetectionConfidence: 0.6,
+            minTrackingConfidence: 0.6
+        });
+        hands.onResults((results) => {
+            fingers[0].ok = false;
+            fingers[1].ok = false;
+            if (results.multiHandLandmarks) {
+                const numToProcess = handMode === 'one' ? 1 : results.multiHandLandmarks.length;
+                for (let i = 0; i < numToProcess && i < 2; i++) {
+                    const lm = results.multiHandLandmarks[i];
+                    const tip = lm[8];
+                    fingers[i].x = 1 - tip.x;
+                    fingers[i].y = tip.y;
+                    fingers[i].ok = true;
+                }
+            }
+        });
+
+        let cam = null;
+        async function startCamera() {
+            fitCanvas();
+            cam = new Camera(video, {
+                onFrame: async () => {
+                    await hands.send({ image: video });
+                },
+                width: 1280,
+                height: 720
+            });
+            await cam.start();
+            cameraStarted = true;
+
+            startBtn.style.display = 'none';
+            instructions.style.display = 'none';
+            modeSelect.style.display = 'block';
+            updateThemeUI();
+            updateHandModeUI();
+            draw();
+        }
+
+        function startGameWithMode(mode) {
+            currentMode = mode;
+            config = difficulties[mode];
+
+            modeSelect.style.display = 'none';
+            gameControls.style.display = 'block';
+
+            modeIndicator.textContent = config.name;
+            modeIndicator.className = `mode-indicator ${mode}`;
+
+            panel.classList.add('hidden');
+
+            t0 = null;
+            lastFrame = 0;
+            lastSpawn = 0;
+            healthyCaught = 0;
+            junkHit = 0;
+            score = 0;
+            prevScore = 0;
+            items.length = 0;
+            updateHUD();
+
+            running = true;
+            pauseBtn.disabled = false;
+            expandStage();
+        }
+
+        startBtn.addEventListener("click", async () => {
+            try {
+                await startCamera();
+            } catch (e) {
+                alert("Camera start failed. Try using HTTPS or localhost, and allow camera permission.");
+                console.error(e);
+            }
+        });
+
+        easyBtn.addEventListener("click", () => startGameWithMode('easy'));
+        mediumBtn.addEventListener("click", () => startGameWithMode('medium'));
+        hardBtn.addEventListener("click", () => startGameWithMode('hard'));
+
+        themeNormalBtn.addEventListener("click", () => {
+            currentTheme = 'normal';
+            updateThemeUI();
+        });
+        themeCnyBtn.addEventListener("click", () => {
+            currentTheme = 'cny';
+            updateThemeUI();
+        });
+        handsOneBtn.addEventListener("click", () => {
+            handMode = 'one';
+            updateHandModeUI();
+        });
+        handsTwoBtn.addEventListener("click", () => {
+            handMode = 'two';
+            updateHandModeUI();
+        });
+
+        pauseBtn.addEventListener("click", () => {
+            running = !running;
+            if (running) {
+                t0 = performance.now() - elapsed * 1000;
+                lastFrame = 0;
+                pauseBtn.textContent = "⏸️ Pause";
+                panel.classList.add('hidden');
+                expandStage();
+            } else {
+                pauseBtn.textContent = "▶️ Resume";
+                panel.classList.remove('hidden');
+                revertStage();
+            }
+        });
+
+        resetBtn.addEventListener("click", () => {
+            pauseBtn.textContent = "⏸️ Pause";
+            resetGame();
+        });
+
+        document.addEventListener("keydown", (e) => {
+            if (e.code === "Space" && cameraStarted && currentMode) {
+                e.preventDefault();
+                pauseBtn.click();
+            }
+        });
+    </script>
+</body>
+
+</html>

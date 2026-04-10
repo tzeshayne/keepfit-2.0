@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boat Rowing</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --water: #1e3a5f;
+      --lane-light: rgba(255,255,255,0.03);
+      --lane-divider: rgba(56,189,248,0.25);
+      --text: #f8fafc;
+      --primary: #0ea5e9;
+      --danger: #f43f5e;
+      --gold: #fbbf24;
+      --font: 'Outfit', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+    body {
+      background: var(--bg);
+      font-family: var(--font);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #game-wrap {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    canvas#game-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Hidden video for hand detection */
+    #vid { display: none; position: absolute; }
+
+    /* HUD */
+    #hud {
+      position: absolute;
+      top: 0; left: 0; width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 24px;
+      background: linear-gradient(to bottom, rgba(15,23,42,0.9), transparent);
+      pointer-events: none;
+      z-index: 5;
+    }
+    #hud.hidden { display: none; }
+    .hud-box { text-align: center; }
+    .hud-label { font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 2px; }
+    .hud-val { font-size: 1.8rem; font-weight: 700; }
+    #score-val { color: #fff; }
+    #lives-val { color: var(--danger); }
+    #streak-val { color: var(--gold); }
+
+    /* Screens */
+    .screen {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: rgba(15,23,42,0.92);
+      backdrop-filter: blur(10px);
+      z-index: 10;
+      transition: opacity 0.3s;
+    }
+    .screen.hidden { opacity: 0; pointer-events: none; }
+
+    .screen h1 {
+      font-size: clamp(2rem, 6vw, 4rem);
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff 0%, #7dd3fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.4rem;
+    }
+    .screen p.sub { color: #94a3b8; font-size: 1.1rem; margin-bottom: 2rem; }
+
+    .info-box {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 1rem;
+      padding: 1.2rem 2rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      max-width: 400px;
+    }
+    .info-box .icon { font-size: 2.5rem; display: block; margin-bottom: 0.5rem; }
+    .info-box p { color: #94a3b8; font-size: 0.95rem; line-height: 1.6; }
+
+    .btn {
+      font-family: var(--font);
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 0.9rem 2.4rem;
+      border-radius: 2rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 0.4rem;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #0ea5e9, #3b82f6);
+      color: #fff;
+      box-shadow: 0 8px 20px -4px rgba(14,165,233,0.5);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 26px -6px rgba(14,165,233,0.6); }
+    .btn-sec {
+      background: transparent;
+      border: 2px solid rgba(255,255,255,0.15);
+      color: #94a3b8;
+    }
+    .btn-sec:hover { border-color: #38bdf8; color: #38bdf8; background: rgba(56,189,248,0.1); }
+
+    #cam-status {
+      font-size: 0.85rem;
+      color: #4ade80;
+      min-height: 1.4rem;
+      margin-top: 0.5rem;
+    }
+
+    #final-score { font-size: 4rem; font-weight: 700; color: #38bdf8; display: block; }
+
+    /* Hand cursor indicator */
+    #hand-dot {
+      position: absolute;
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      border: 3px solid #0ea5e9;
+      box-shadow: 0 0 16px rgba(14,165,233,0.6);
+      pointer-events: none;
+      z-index: 6;
+      transform: translate(-50%, -50%);
+      transition: left 0.05s, top 0.05s;
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="game-wrap">
+    <canvas id="game-canvas"></canvas>
+    <video id="vid" playsinline muted></video>
+    <div id="hand-dot"></div>
+
+    <!-- HUD -->
+    <div id="hud" class="hidden">
+      <div class="hud-box">
+        <div class="hud-label" id="lbl-score-1">P1 Score</div>
+        <div class="hud-val" id="score-val">0</div>
+      </div>
+      <div class="hud-box">
+        <div class="hud-label" id="lbl-lives-1">P1 Lives</div>
+        <div class="hud-val" id="lives-val">❤️❤️❤️❤️</div>
+      </div>
+      <div class="hud-box">
+        <div class="hud-label">Streak</div>
+        <div class="hud-val" id="streak-val">0×</div>
+      </div>
+      <div class="hud-box" id="box-lives-2" style="display:none;">
+        <div class="hud-label">P2 Lives</div>
+        <div class="hud-val" id="lives-val-2">❤️❤️❤️❤️</div>
+      </div>
+      <div class="hud-box" id="box-score-2" style="display:none;">
+        <div class="hud-label">P2 Score</div>
+        <div class="hud-val" id="score-val-2">0</div>
+      </div>
+    </div>
+
+    <!-- Start Screen -->
+    <div id="start-screen" class="screen">
+      <h1>🚣 BOAT ROWING</h1>
+      <p class="sub">Steer with your hand — catch healthy food!</p>
+
+      <div class="info-box">
+        <span class="icon">👋</span>
+        <p>Move your hand left and right in front of the camera.<br>
+        Your boat follows your hand movement.<br>
+        No video is shown on screen — just wave and play!</p>
+      </div>
+
+      <button class="btn btn-primary" id="btn-cam">🎥 Enable Camera</button>
+      <div id="start-btns" style="display:none; flex-direction:column; gap:10px;">
+        <button class="btn btn-primary" id="btn-start-1p">▶ 1 PLAYER START</button>
+        <button class="btn btn-primary" id="btn-start-2p">▶ 2 PLAYER START</button>
+      </div>
+      <p id="cam-status"></p>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameover-screen" class="screen hidden">
+      <h1>GAME OVER</h1>
+      <p class="sub">Final Score</p>
+      <span id="final-score">0</span>
+      <br><br>
+      <button class="btn btn-primary" id="btn-restart">🔄 Row Again</button>
+      <button class="btn btn-sec" id="btn-home">🏠 Home</button>
+    </div>
+  </div>
+
+  <!-- MediaPipe -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+
+  <script>
+  (() => {
+    let NUM_LANES = 6;
+    const GOOD_ICONS  = ['🍎','🍌','🥦','🥕','🍇','🍊','🥝'];
+    const BAD_ICONS   = ['🍔','🍟','🍕','🥤','🍩','🍦'];
+
+    // ── DOM ─────────────────────────────────────────────────────────────────
+    const canvas   = document.getElementById('game-canvas');
+    const ctx      = canvas.getContext('2d');
+    const vid      = document.getElementById('vid');
+    const handDot  = document.getElementById('hand-dot');
+    const hud      = document.getElementById('hud');
+    const startScr = document.getElementById('start-screen');
+    const overScr  = document.getElementById('gameover-screen');
+    const camStatus= document.getElementById('cam-status');
+    const scoreVal = document.getElementById('score-val');
+    const livesVal = document.getElementById('lives-val');
+    const streakVal= document.getElementById('streak-val');
+    
+    // Extensions
+    const finalScr = document.getElementById('final-score');
+    const btnCam = document.getElementById('btn-cam');
+    const startBtns = document.getElementById('start-btns');
+    const lblScore1 = document.getElementById('lbl-score-1');
+    const lblLives1 = document.getElementById('lbl-lives-1');
+    const boxLives2 = document.getElementById('box-lives-2');
+    const boxScore2 = document.getElementById('box-score-2');
+    const livesVal2 = document.getElementById('lives-val-2');
+    const scoreVal2 = document.getElementById('score-val-2');
+
+    let W = 0, H = 0;        
+    const dpr = () => window.devicePixelRatio || 1;
+
+    function resize() {
+      W = window.innerWidth;
+      H = window.innerHeight;
+      canvas.width  = W * dpr();
+      canvas.height = H * dpr();
+      canvas.style.width  = W + 'px';
+      canvas.style.height = H + 'px';
+      ctx.scale(dpr(), dpr());
+    }
+    window.addEventListener('resize', () => { resize(); syncGameDims(); });
+    resize();
+
+    // ── Hand tracking state ──────────────────────────────────────────────────
+    let handXs = [];
+    let camReady = false;
+
+    function initHands() {
+      const hands = new Hands({
+        locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`
+      });
+      hands.setOptions({ maxNumHands: 2, modelComplexity: 0,
+        minDetectionConfidence: 0.6, minTrackingConfidence: 0.5 });
+
+      hands.onResults(results => {
+        if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+          handXs = [];
+          results.multiHandLandmarks.forEach(lm => {
+            const tip = lm[9]; // palm center point
+            handXs.push(1 - tip.x);   // mirror X
+          });
+          handXs.sort((a,b) => a - b); // physical left to right mapping
+          
+          handDot.style.display = 'block';
+          handDot.style.opacity = '0'; 
+        } else {
+          handXs = [];
+        }
+      });
+
+      const cam = new Camera(vid, {
+        onFrame: async () => { await hands.send({ image: vid }); },
+        width: 320, height: 240
+      });
+
+      cam.start().then(() => {
+        camReady = true;
+        camStatus.textContent = '✅ Camera ready! Select mode.';
+        startBtns.style.display = 'flex';
+        btnCam.style.display = 'none';
+      }).catch(e => {
+        camStatus.textContent = '❌ Camera error: ' + e.message;
+      });
+    }
+
+    // ── Game state ───────────────────────────────────────────────────────────
+    let state = 'start';  // 'start' | 'playing' | 'over'
+    let numPlayers = 1;
+    let streak = 0;
+    let players = [], items = [];
+    let lastTime, spawnTimer, spawnInterval, magnetTimer = 0;
+    let minSpeed, maxSpeed, diffTimer;
+
+    function laneWidth() { return W / NUM_LANES; }
+
+    function syncGameDims() {
+      players.forEach(p => {
+        p.w = laneWidth() * 0.6;
+        p.h = p.w * 2.5;
+        p.y = H - p.h - 16;
+        p.x = Math.max(p.minX, Math.min(p.maxX - p.w, p.x));
+      });
+    }
+
+    function startGame(mode) {
+      numPlayers = mode;
+      NUM_LANES = numPlayers === 1 ? 6 : 12;
+      streak = 0;
+      spawnTimer = 0; 
+      // For two players, we double the lanes, and we spawn TWO items per tick! 
+      // So interval can be standard speed for one player.
+      spawnInterval = 2.0; 
+      minSpeed = 160; maxSpeed = 300; diffTimer = 0; magnetTimer = 0;
+      items = [];
+
+      const pw = laneWidth() * 0.6;
+      const ph = pw * 2.5; 
+      
+      players = [];
+      if (numPlayers === 1) {
+        players.push({ active: true, score: 0, lives: 4, dead: false,
+          x: W/2 - pw/2, y: H - ph - 16, w: pw, h: ph, color: '#38bdf8', minX: 0, maxX: W });
+          
+        lblScore1.textContent = "Score";
+        lblLives1.textContent = "Lives";
+        boxScore2.style.display = "none";
+        boxLives2.style.display = "none";
+      } else {
+        players.push({ active: true, score: 0, lives: 4, dead: false,
+          x: W*0.25 - pw/2, y: H - ph - 16, w: pw, h: ph, color: '#38bdf8', minX: 0, maxX: W/2 });
+        players.push({ active: true, score: 0, lives: 4, dead: false,
+          x: W*0.75 - pw/2, y: H - ph - 16, w: pw, h: ph, color: '#f43f5e', minX: W/2, maxX: W });
+          
+        lblScore1.textContent = "P1 Score";
+        lblLives1.textContent = "P1 Lives";
+        boxScore2.style.display = "block";
+        boxLives2.style.display = "block";
+      }
+
+      hud.classList.remove('hidden');
+      startScr.classList.add('hidden');
+      overScr.classList.add('hidden');
+      updateHUD();
+      state = 'playing';
+      lastTime = performance.now();
+      requestAnimationFrame(loop);
+    }
+
+    function endGame() {
+      state = 'over';
+      hud.classList.add('hidden');
+      overScr.classList.remove('hidden');
+      
+      let tot = players[0].score;
+      if (numPlayers > 1) {
+          tot = `P1: ${players[0].score} | P2: ${players[1].score}`;
+      }
+      finalScr.textContent = tot;
+      try {
+        let sc = players[0].score;
+        if(numPlayers > 1) sc += players[1].score;
+        window.parent.postMessage({ type: 'GAME_COMPLETE', gameId: 'Boat Rowing', score: sc }, '*');
+      } catch(e) {}
+    }
+
+    function updateHUD() {
+      scoreVal.textContent = players[0].score;
+      livesVal.textContent = players[0].dead ? '☠️' : '❤️'.repeat(Math.max(0, players[0].lives));
+      streakVal.textContent = Math.ceil(magnetTimer) > 0 ? `🧲 ${Math.ceil(magnetTimer)}s` : streak + '×';
+      
+      if (numPlayers > 1) {
+         scoreVal2.textContent = players[1].score;
+         livesVal2.textContent = players[1].dead ? '☠️' : '❤️'.repeat(Math.max(0, players[1].lives));
+      }
+    }
+
+    // ── Item ─────────────────────────────────────────────────────────────────
+    function _spawnSingleItem(forceLane) {
+      const lw  = laneWidth();
+      const lane = forceLane !== undefined ? forceLane : Math.floor(Math.random() * NUM_LANES);
+      
+      let isGood = false;
+      let isMagnet = false;
+      let icon = '';
+      const rand = Math.random();
+      if (rand < 0.50) {
+        isGood = true;
+        icon = GOOD_ICONS[Math.floor(Math.random() * GOOD_ICONS.length)];
+      } else if (rand < 0.90) {
+        icon = BAD_ICONS[Math.floor(Math.random() * BAD_ICONS.length)];
+      } else {
+        isMagnet = true;
+        icon = '🧲';
+      }
+
+      const sp = minSpeed + Math.random() * (maxSpeed - minSpeed);
+      const size = lw * 0.75;
+      const xPos = lane * lw + (lw - size) / 2;
+      items.push({
+        lane, x: xPos, y: -size,
+        w: size, h: size,
+        speed: sp,
+        good: isGood,
+        isMagnet: isMagnet,
+        icon: icon,
+        dead: false
+      });
+    }
+
+    function spawnItem() {
+       if (numPlayers === 1) {
+          _spawnSingleItem();
+       } else {
+          // Both sides spawn at the EXACT same time
+          // One left side (0 to 5)
+          const leftLane = Math.floor(Math.random() * (NUM_LANES / 2));
+          // One right side (6 to 11)
+          const rightLane = Math.floor(Math.random() * (NUM_LANES / 2)) + (NUM_LANES / 2);
+          _spawnSingleItem(leftLane);
+          _spawnSingleItem(rightLane);
+       }
+    }
+
+    function drawItem(it) {
+      const fontSize = Math.floor(it.w * 0.65);
+      ctx.font = `${fontSize}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(it.icon, it.x + it.w / 2, it.y + it.h / 2);
+      
+      // If it's a good item and magnet is active, add tracking shine effect!
+      if (it.good && magnetTimer > 0) {
+         ctx.save();
+         ctx.fillStyle = 'rgba(251, 191, 36, 0.4)';
+         ctx.beginPath();
+         ctx.arc(it.x + it.w/2, it.y + it.h/2, it.w, 0, Math.PI*2);
+         ctx.fill();
+         ctx.restore();
+      }
+    }
+
+    // ── Canvas Canoe Draw ────────────────────────────────────────────────────
+    function drawPlayer(p) {
+      if (p.dead) return;
+      const { x, y, w, h, color } = p;
+      ctx.save();
+      
+      if(!p.active) {
+         ctx.globalAlpha = 0.5;
+         ctx.translate(x + w/2, y + h/2);
+         ctx.fillStyle = '#fff';
+         ctx.font = '16px Arial';
+         ctx.textAlign = 'center';
+         ctx.fillText("Wave Hand", 0, 0);
+         ctx.restore();
+         return;
+      }
+      
+      ctx.translate(x + w/2, y + h/2);
+      
+      // Magnet Aura!
+      if (magnetTimer > 0) {
+         ctx.fillStyle = `rgba(251, 191, 36, ${0.4 + Math.sin(Date.now() / 100)*0.2})`; // pulsing gold
+         ctx.beginPath();
+         ctx.arc(0, 0, w * 1.5, 0, Math.PI*2);
+         ctx.fill();
+         
+         ctx.fillStyle = 'rgba(251, 191, 36, 0.1)';
+         ctx.beginPath();
+         ctx.arc(0, 0, w * 4.0, 0, Math.PI*2);
+         ctx.fill();
+      }
+
+      // Outline / shadow
+      ctx.fillStyle = 'rgba(0,0,0,0.4)';
+      ctx.beginPath();
+      ctx.moveTo(4, -h/2 + 4);
+      ctx.bezierCurveTo(w/2 + 4, -h/4 + 4, w/2 + 4, h/4 + 4, 4, h/2 + 4);
+      ctx.bezierCurveTo(-w/2 + 4, h/4 + 4, -w/2 + 4, -h/4 + 4, 4, -h/2 + 4);
+      ctx.fill();
+
+      // Hull
+      ctx.fillStyle = '#654321'; 
+      ctx.beginPath();
+      ctx.moveTo(0, -h/2);
+      ctx.bezierCurveTo(w/2, -h/4, w/2, h/4, 0, h/2);
+      ctx.bezierCurveTo(-w/2, h/4, -w/2, -h/4, 0, -h/2);
+      ctx.fill();
+
+      // Inner boat cavity
+      ctx.fillStyle = '#8B5A2B'; 
+      ctx.beginPath();
+      ctx.moveTo(0, -h/2 + 6);
+      ctx.bezierCurveTo(w/2 - 4, -h/4 + 2, w/2 - 4, h/4 - 2, 0, h/2 - 6);
+      ctx.bezierCurveTo(-w/2 + 4, h/4 - 2, -w/2 + 4, -h/4 + 2, 0, -h/2 + 6);
+      ctx.fill();
+
+      // Color stripe for player
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(0, 0, w*0.35, 0, Math.PI*2);
+      ctx.fill();
+
+      // Seats
+      ctx.fillStyle = '#3e2723';
+      ctx.fillRect(-w/3, -h/3.5, w/1.5, h*0.06);
+      ctx.fillRect(-w/3, h/4.5, w/1.5, h*0.06);
+
+      ctx.restore();
+    }
+
+    // ── Water / background ───────────────────────────────────────────────────
+    let waveOffset = 0;
+    function drawBackground(dt) {
+      waveOffset += dt * 40;
+      // Deep water gradient
+      const grad = ctx.createLinearGradient(0, 0, 0, H);
+      grad.addColorStop(0,   magnetTimer > 0 ? '#1e3a2a' : '#0c1e3a'); // tint green on rush
+      grad.addColorStop(0.5, magnetTimer > 0 ? '#2d5a49' : '#1e3a5f');
+      grad.addColorStop(1,   magnetTimer > 0 ? '#132a1e' : '#0f172a');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+
+      // Lane dividers
+      const lw = laneWidth();
+      for (let i = 1; i < NUM_LANES; i++) {
+        ctx.save();
+        ctx.strokeStyle = magnetTimer > 0 ? 'rgba(52, 211, 153, 0.4)' : 'rgba(56,189,248,0.22)';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([12, 12]);
+        ctx.lineDashOffset = -waveOffset * 0.5;
+        ctx.beginPath();
+        ctx.moveTo(i * lw, 0);
+        ctx.lineTo(i * lw, H);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Animated waves
+      ctx.save();
+      ctx.strokeStyle = magnetTimer > 0 ? 'rgba(52, 211, 153, 0.3)' : 'rgba(148,210,250,0.12)';
+      ctx.lineWidth = 1.5;
+      for (let row = 0; row < 5; row++) {
+        const baseY = (H / 5) * row + (waveOffset % (H / 5));
+        ctx.beginPath();
+        for (let xp = 0; xp <= W; xp += 4) {
+          const yp = baseY + Math.sin((xp / W) * Math.PI * 4 + waveOffset * 0.03) * 6;
+          xp === 0 ? ctx.moveTo(xp, yp) : ctx.lineTo(xp, yp);
+        }
+        ctx.stroke();
+      }
+      ctx.restore();
+      
+      // Split Screen Demarcation for 2 Player
+      if (numPlayers === 2) {
+          ctx.save();
+          ctx.strokeStyle = '#f8fafc';
+          ctx.lineWidth = 4;
+          ctx.setLineDash([25, 20]);
+          ctx.beginPath();
+          ctx.moveTo(W/2, 0);
+          ctx.lineTo(W/2, H);
+          ctx.stroke();
+          ctx.restore();
+      }
+      
+      // Magnet Rush Title
+      if (magnetTimer > 0) {
+         ctx.save();
+         ctx.font = 'bold ' + Math.min(100, W * 0.1) + 'px Outfit';
+         ctx.textAlign = 'center';
+         ctx.textBaseline = 'middle';
+         ctx.fillStyle = `rgba(251, 191, 36, ${0.1 + Math.sin(Date.now() / 150)*0.2})`;
+         ctx.fillText("MAGNET RUSH!", W/2, H/2);
+         ctx.restore();
+      }
+    }
+
+    // ── Main loop ─────────────────────────────────────────────────────────────
+    function loop(ts) {
+      if (state !== 'playing') return;
+      const dt = Math.min((ts - lastTime) / 1000, 0.05);
+      lastTime = ts;
+
+      // Update magnet
+      if (magnetTimer > 0) {
+         magnetTimer -= dt;
+         updateHUD();
+         items.forEach(it => {
+            if (it.good && !it.dead) {
+               let nearestP = null, minDist = Infinity;
+               players.forEach(p => {
+                 if (p.active && !p.dead) {
+                   const dx = (p.x + p.w/2) - (it.x + it.w/2);
+                   const dy = (p.y + p.h/2) - (it.y + it.h/2);
+                   const dist = Math.sqrt(dx*dx + dy*dy);
+                   if (dist < minDist) { minDist = dist; nearestP = p; }
+                 }
+               });
+               if (nearestP && minDist < 800) { // Large suction range!
+                  const dx = (nearestP.x + nearestP.w/2) - (it.x + it.w/2);
+                  const dy = (nearestP.y + nearestP.h/2) - (it.y + it.h/2);
+                  const angle = Math.atan2(dy, dx);
+                  it.x += Math.cos(angle) * 700 * dt; // Strong pull
+                  it.y += Math.sin(angle) * 700 * dt;
+               }
+            }
+         });
+      }
+
+      // Difficulty ramp
+      diffTimer += dt;
+      if (diffTimer > 10) {
+        spawnInterval = Math.max(0.38, spawnInterval * 0.93);
+        minSpeed += 8; maxSpeed += 12;
+        diffTimer = 0;
+      }
+
+      // Spawn
+      spawnTimer += dt;
+      if (spawnTimer >= spawnInterval) {
+        spawnItem();
+        spawnTimer = 0;
+      }
+
+      // Sync active state
+      if (numPlayers === 1) {
+        players[0].active = handXs.length > 0;
+      } else {
+        players[0].active = handXs.length > 0;
+        players[1].active = handXs.length > 1;
+      }
+
+      players.forEach((p, idx) => {
+        if(p.active && !p.dead && handXs[idx] !== undefined) {
+           let hX = handXs[idx];
+           let targetX;
+           if (numPlayers === 1) {
+               targetX = hX * W - p.w / 2;
+           } else {
+               // For exactly half the screen, map physical 0-1 across the entire W to the whole board.
+               // Physical left hand naturally sits 0..0.5 physically. Physical right hand sits 0.5..1 physically!
+               targetX = (hX * W) - p.w/2; 
+           }
+           p.x += (targetX - p.x) * Math.min(1, 14 * dt);
+        }
+        p.x = Math.max(p.minX, Math.min(p.maxX - p.w, p.x));
+      });
+
+      // Update items
+      for (let i = items.length - 1; i >= 0; i--) {
+        const it = items[i];
+        it.y += it.speed * dt;
+
+        // Collision Multi-player
+        let collided = false;
+        players.forEach(p => {
+          if (!p.active || p.dead || it.dead || collided) return;
+          const px1 = p.x, px2 = p.x + p.w;
+          const py1 = p.y, py2 = p.y + p.h;
+          
+          if (px1 < it.x + it.w && px2 > it.x &&
+              py1 < it.y + it.h && py2 > it.y) {
+            collided = true;
+            it.dead = true;
+            if (it.isMagnet) {
+              magnetTimer = 10;
+              updateHUD();
+            } else if (it.good) {
+              p.score += 10 + streak * 2;
+              streak++;
+              updateHUD();
+            } else {
+              streak = 0;
+              p.lives--;
+              if (p.lives <= 0) {
+                 p.dead = true;
+              }
+              updateHUD();
+            }
+          }
+        });
+
+        // Game Over check
+        let allDead = true;
+        players.forEach(p => { if(!p.dead) allDead = false; });
+        if(allDead) {
+            endGame(); return;
+        }
+
+        if (it.y > H || it.dead) { items.splice(i, 1); }
+      }
+
+      // Draw
+      ctx.clearRect(0, 0, W, H);
+      drawBackground(dt);
+      items.forEach(drawItem);
+      players.forEach(drawPlayer);
+
+      // Hand indicators at top
+      const lw = laneWidth();
+      handXs.forEach((hx, idx) => {
+         const p = players[idx];
+         if(!p || p.dead) return;
+         ctx.save();
+         ctx.fillStyle = p.color; 
+         ctx.fillRect(hx * W - lw / 2, 0, lw, 6);
+         ctx.restore();
+      });
+
+      requestAnimationFrame(loop);
+    }
+
+    // ── Controls ──────────────────────────────────────────────────────────────
+    btnCam.addEventListener('click', () => {
+      camStatus.textContent = '⏳ Starting camera...';
+      btnCam.disabled = true;
+      initHands();
+    });
+
+    document.getElementById('btn-start-1p').addEventListener('click', () => startGame(1));
+    document.getElementById('btn-start-2p').addEventListener('click', () => startGame(2));
+
+    document.getElementById('btn-restart').addEventListener('click', () => {
+      overScr.classList.add('hidden');
+      startGame(numPlayers);
+    });
+
+    document.getElementById('btn-home').addEventListener('click', () => {
+      state = 'start';
+      overScr.classList.add('hidden');
+      hud.classList.add('hidden');
+      startScr.classList.remove('hidden');
+      items = [];
+    });
+
+    // Draw idle background while on start / over screens
+    (function idleDraw(ts) {
+      if (ts === undefined) ts = 0;
+      if (state !== 'playing') {
+        ctx.clearRect(0, 0, W, H);
+        drawBackground(0.016);
+      }
+      requestAnimationFrame(idleDraw);
+    })();
+
+  })();
+  </script>
+</body>
+</html>
